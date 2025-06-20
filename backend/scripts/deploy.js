@@ -21,10 +21,7 @@ async function main() {
   const dao = await Dao.deploy(
     "VoteToken",
     "VOTE",
-    deployer.address, // panic multisig
-    ethers.utils.parseEther("1"), // token price
-    10, // stakeToVote
-    20, // stakeToPropose
+    ethers.utils.parseEther("0.01"), // token price: 0.01 ETH por token
     3600, // lockPeriod
     7200, // proposalDuration
     1, // voteUnit
@@ -37,6 +34,55 @@ async function main() {
   console.log("FullQuorumStrategy:", fq.address);
   const tokenAddr = await dao.token();
   console.log("VotingToken:", tokenAddr);
+
+  // --- Actualización automática de .env frontend y backend ---
+  const fs = require("fs");
+  const path = require("path");
+
+  // Variables para frontend
+  const frontendEnv = [
+    `REACT_APP_DAO_CONTRACT_ADDRESS=${dao.address}`,
+    `REACT_APP_VOTING_TOKEN_ADDRESS=${tokenAddr}`,
+    `REACT_APP_SIMPLE_STRATEGY_ADDRESS=${simple.address}`,
+    `REACT_APP_FULLQUORUM_STRATEGY_ADDRESS=${fq.address}`,
+  ]
+    .join("\n")
+    .concat("\n");
+
+  // Leer PRIVATE_KEY y RPC_URL actuales si existen
+  let backendEnvExtra = "";
+  const backendEnvPath = path.resolve(__dirname, "../.env");
+  if (fs.existsSync(backendEnvPath)) {
+    const envContent = fs.readFileSync(backendEnvPath, "utf8");
+    const lines = envContent.split(/\r?\n/);
+    for (const line of lines) {
+      if (line.startsWith("PRIVATE_KEY=") || line.startsWith("RPC_URL=")) {
+        backendEnvExtra += line + "\n";
+      }
+    }
+  }
+
+  // Variables para backend
+  const backendEnv = [
+    `DAO_CONTRACT_ADDRESS=${dao.address}`,
+    `VOTING_TOKEN_ADDRESS=${tokenAddr}`,
+    `SIMPLE_STRATEGY_ADDRESS=${simple.address}`,
+    `FULLQUORUM_STRATEGY_ADDRESS=${fq.address}`,
+  ]
+    .join("\n")
+    .concat("\n")
+    .concat(backendEnvExtra);
+
+  // Rutas absolutas
+  const frontendEnvPath = path.resolve(__dirname, "../../frontend/.env");
+
+  // Escribir archivos .env
+  fs.writeFileSync(frontendEnvPath, frontendEnv);
+  fs.writeFileSync(backendEnvPath, backendEnv);
+
+  console.log(
+    "\nArchivos .env de frontend y backend actualizados automáticamente.\n"
+  );
 }
 
 main().catch((e) => {

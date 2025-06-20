@@ -5,6 +5,7 @@ import Staking         from "./components/Staking";
 import ProposalsList   from "./components/ProposalsList";
 import ProposalDetail  from "./components/ProposalDetail";
 import AdminPanel      from "./components/AdminPanel";
+import TokenBalance    from "./components/TokenBalance";
 
 function App() {
   const [address, setAddress] = useState(null);
@@ -26,6 +27,7 @@ function App() {
           <h1 className="text-4xl font-extrabold text-white drop-shadow-lg tracking-tight mb-2">DAO Governance Platform</h1>
           <p className="text-lg text-gray-200">Gestioná tu DAO de forma simple, segura y moderna</p>
         </header>
+        <TokenBalance provider={provider} address={address} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <BuyTokens provider={provider} />

@@ -2,16 +2,19 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title VotingToken
-/// @notice ERC-20 mintable solo por el propietario (DAO)
-contract VotingToken is ERC20, Ownable {
-    constructor(string memory name, string memory symbol, address initialOwner) ERC20(name, symbol) Ownable(initialOwner) {}
+/// @notice ERC-20 mintable solo por el contrato DAO
+contract VotingToken is ERC20 {
+    address public dao;
+    constructor(string memory name, string memory symbol, address _dao) ERC20(name, symbol) {
+        dao = _dao;
+    }
 
     /// @notice Minta nuevos tokens a `to`
-    /// @dev Solo el owner puede llamar
-    function mint(address to, uint256 amount) external onlyOwner {
+    /// @dev Solo el contrato DAO puede llamar
+    function mint(address to, uint256 amount) external {
+        require(msg.sender == dao, "Only DAO can mint");
         _mint(to, amount);
     }
 }

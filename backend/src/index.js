@@ -7,6 +7,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log("DAO_CONTRACT_ADDRESS:", process.env.DAO_CONTRACT_ADDRESS);
+console.log("VOTING_TOKEN_ADDRESS:", process.env.VOTING_TOKEN_ADDRESS);
+console.log("PRIVATE_KEY:", process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY.slice(0, 10) + '...' : undefined);
+console.log("RPC_URL:", process.env.RPC_URL);
+
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
@@ -14,7 +19,7 @@ const daoAbi = require("../artifacts/contracts/DaoGovernance.sol/DaoGovernance.j
 const tokenAbi = require("../artifacts/contracts/VotingToken.sol/VotingToken.json").abi;
 
 const dao = new ethers.Contract(process.env.DAO_CONTRACT_ADDRESS, daoAbi, wallet);
-const token = new ethers.Contract(process.env.TOKEN_CONTRACT_ADDRESS, tokenAbi, wallet);
+const token = new ethers.Contract(process.env.VOTING_TOKEN_ADDRESS, tokenAbi, wallet);
 
 // Rutas: stake, unstake, proposals, balance, staking
 // NOTA: El endpoint /buy fue eliminado porque la compra de tokens ahora se realiza desde el frontend usando MetaMask.
