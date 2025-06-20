@@ -78,7 +78,7 @@ contract DaoGovernance is Ownable {
         uint256 _voteUnit,
         address initialStrategy
     ) Ownable(msg.sender) {
-        token = new VotingToken(tokenName, tokenSymbol, msg.sender);
+        token = new VotingToken(tokenName, tokenSymbol, address(this)); // Cambiado: el owner del token es el contrato DAO
         panicMultisig = _panicMultisig;
         tokenPriceWei = _tokenPriceWei;
         stakeToVote = _stakeToVote;
@@ -199,5 +199,10 @@ contract DaoGovernance is Ownable {
 
     function setPanicMultisig(address newMultisig) external onlyOwner {
         panicMultisig = newMultisig;
+    }
+
+    // Getter público para la cantidad de propuestas
+    function proposalCount() public view returns (uint256) {
+        return _proposalCount;
     }
 }

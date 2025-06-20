@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import WalletConnector from "./components/WalletConnector";
-import Dashboard       from "./components/Dashboard";
 import BuyTokens       from "./components/BuyTokens";
 import Staking         from "./components/Staking";
 import ProposalsList   from "./components/ProposalsList";
@@ -29,14 +28,13 @@ function App() {
         </header>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
-            <Dashboard address={address} provider={provider} />
             <BuyTokens provider={provider} />
             <Staking  provider={provider} />
           </div>
           <div className="space-y-6">
-            <ProposalsList provider={provider} />
-            <ProposalDetail provider={provider} />
-            <AdminPanel provider={provider} />
+            <ProposalsList address={address} />
+            <ProposalDetail address={address} />
+            <AdminPanel address={address} />
           </div>
         </div>
       </div>

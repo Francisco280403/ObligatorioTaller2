@@ -1,33 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { DAO_ADDRESS, DAO_ABI } from "../constants";
-import { ethers } from "ethers";
+import { API_BASE } from "../constants";
 
-function ProposalsList({ provider }) {
+function ProposalsList({ address }) {
   const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!provider) return;
-    const fetchProposals = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
-        const count = await dao._proposalCount();
-        const arr = [];
-        for (let i = 1; i <= count; i++) {
-          const p = await dao.proposals(i);
-          arr.push({ id: p.id.toString(), title: p.title });
+    setLoading(true);
+    setError("");
+    fetch(`${API_BASE}/proposals`)
+      .then(async res => {
+        let data;
+        try { data = await res.json(); } catch { data = {}; }
+        if (res.ok && Array.isArray(data)) {
+          setProposals(data);
+        } else {
+          setError(data.error || `Error inesperado: ${JSON.stringify(data)}`);
+          setProposals([]);
         }
-        setProposals(arr);
-      } catch (e) {
-        setError("Error al cargar propuestas");
-      }
-      setLoading(false);
-    };
-    fetchProposals();
-  }, [provider]);
+      })
+      .catch((err) => {
+        setError("Error al cargar propuestas: " + err.message);
+        setProposals([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="bg-white/10 backdrop-blur rounded-xl p-6 shadow-lg border border-white/20">

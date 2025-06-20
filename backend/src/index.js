@@ -1,8 +1,10 @@
 const express = require("express");
+const cors    = require("cors");
 const { ethers } = require("ethers");
 require("dotenv").config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
@@ -14,16 +16,8 @@ const tokenAbi = require("../artifacts/contracts/VotingToken.sol/VotingToken.jso
 const dao = new ethers.Contract(process.env.DAO_CONTRACT_ADDRESS, daoAbi, wallet);
 const token = new ethers.Contract(process.env.TOKEN_CONTRACT_ADDRESS, tokenAbi, wallet);
 
-// Rutas: buy, stake, unstake, proposals, balance, staking
-app.post("/buy", async (req, res) => {
-  try {
-    const tx = await dao.buyTokens({ value: ethers.utils.parseEther(req.body.amount) });
-    await tx.wait();
-    res.json({ tx: tx.hash });
-  } catch (e) {
-    res.status(400).json({ error: e.reason || e.message });
-  }
-});
+// Rutas: stake, unstake, proposals, balance, staking
+// NOTA: El endpoint /buy fue eliminado porque la compra de tokens ahora se realiza desde el frontend usando MetaMask.
 
 app.post("/stake/vote", async (req, res) => {
   try {
@@ -69,12 +63,17 @@ app.post("/unstake/propose", async (req, res) => {
 
 app.post("/proposals", async (req, res) => {
   try {
+    console.log("/proposals endpoint called with:", req.body);
     const { title, description } = req.body;
+    if (!title || !description) {
+      return res.status(400).json({ error: "Faltan título o descripción" });
+    }
     const tx = await dao.createProposal(title, description);
     await tx.wait();
     res.json({ tx: tx.hash });
   } catch (e) {
-    res.status(400).json({ error: e.reason || e.message });
+    console.error("/proposals error:", e);
+    res.status(400).json({ error: e.reason || e.message, full: e });
   }
 });
 
@@ -100,7 +99,8 @@ app.post("/proposals/:id/finalize", async (req, res) => {
 
 app.get("/proposals", async (req, res) => {
   try {
-    const count = (await dao._proposalCount()).toNumber();
+    // Cambiado _proposalCount por proposalCount
+    const count = (await dao.proposalCount()).toNumber();
     const block = await provider.getBlock("latest");
     const finals = await dao.queryFilter(dao.filters.Finalized());
     const accepted = {};
@@ -116,7 +116,8 @@ app.get("/proposals", async (req, res) => {
     }
     res.json(out);
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    console.error("/proposals error:", e);
+    res.status(400).json({ error: e.message, stack: e.stack });
   }
 });
 
@@ -145,24 +146,7 @@ app.get("/proposals/:id", async (req, res) => {
   }
 });
 
-app.get("/balance/:address", async (req, res) => {
-  try {
-    const b = await token.balanceOf(req.params.address);
-    res.json({ balance: b.toString() });
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
-
-app.get("/staking/:address", async (req, res) => {
-  try {
-    const sv = await dao.stakeVotes(req.params.address);
-    const sp = await dao.stakeProposals(req.params.address);
-    res.json({ stakeVotes: sv.toString(), stakeProposals: sp.toString() });
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`API REST escuchando en http://localhost:${PORT}`);
+});

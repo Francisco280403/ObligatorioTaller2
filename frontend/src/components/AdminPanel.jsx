@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { DAO_ADDRESS, DAO_ABI } from "../constants";
-import { ethers } from "ethers";
+import { API_BASE } from "../constants";
 
-function AdminPanel({ provider }) {
+function AdminPanel({ address }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,15 +14,17 @@ function AdminPanel({ provider }) {
     setSuccess("");
     setLoading(true);
     try {
-      const signer = provider.getSigner();
-      const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, signer);
-      const tx = await dao.createProposal(title, description);
-      await tx.wait();
+      const res = await fetch(`${API_BASE}/proposals`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, title, description }),
+      });
+      if (!res.ok) throw new Error("Error al crear propuesta");
       setSuccess("Propuesta creada correctamente");
       setTitle("");
       setDescription("");
     } catch (e) {
-      setError(e.reason || e.message);
+      setError(e.message);
     }
     setLoading(false);
   };

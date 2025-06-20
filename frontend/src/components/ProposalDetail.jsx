@@ -1,49 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { DAO_ADDRESS, DAO_ABI } from "../constants";
-import { ethers } from "ethers";
+import { API_BASE } from "../constants";
 
-function ProposalDetail({ provider, proposalId }) {
+function ProposalDetail({ address, proposalId }) {
   const [proposal, setProposal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [voteMsg, setVoteMsg] = useState("");
 
   useEffect(() => {
-    if (!provider || !proposalId) return;
-    const fetchProposal = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
-        const p = await dao.proposals(proposalId);
-        setProposal({
-          id: p.id.toString(),
-          title: p.title,
-          description: p.description,
-          forVotes: p.forVotes.toString(),
-          againstVotes: p.againstVotes.toString(),
-          executed: p.executed
-        });
-      } catch (e) {
-        setError("Error al cargar propuesta");
-      }
-      setLoading(false);
-    };
-    fetchProposal();
-  }, [provider, proposalId]);
+    if (!proposalId) return;
+    setLoading(true);
+    setError("");
+    fetch(`${API_BASE}/proposals/${proposalId}`)
+      .then((res) => res.json())
+      .then((data) => setProposal(data))
+      .catch(() => setError("Error al cargar propuesta"))
+      .finally(() => setLoading(false));
+  }, [proposalId]);
 
   const handleVote = async (support) => {
     setVoteMsg("");
     setError("");
     setLoading(true);
     try {
-      const signer = provider.getSigner();
-      const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, signer);
-      const tx = await dao.vote(proposalId, support);
-      await tx.wait();
+      const res = await fetch(`${API_BASE}/proposals/${proposalId}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, support }),
+      });
+      if (!res.ok) throw new Error("Error al votar");
       setVoteMsg("Voto registrado correctamente");
     } catch (e) {
-      setError(e.reason || e.message);
+      setError(e.message);
     }
     setLoading(false);
   };
@@ -59,12 +47,28 @@ function ProposalDetail({ provider, proposalId }) {
         <>
           <div className="text-white font-bold mb-2">{proposal.title}</div>
           <div className="text-gray-200 mb-4">{proposal.description}</div>
-          <div className="mb-4 text-white">A favor: {proposal.forVotes} | En contra: {proposal.againstVotes}</div>
-          <div className="flex gap-2">
-            <button className="flex-1 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition" onClick={() => handleVote(true)} disabled={loading}>Votar Sí</button>
-            <button className="flex-1 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition" onClick={() => handleVote(false)} disabled={loading}>Votar No</button>
+          <div className="mb-4 text-white">
+            A favor: {proposal.for} | En contra: {proposal.against}
           </div>
-          {voteMsg && <div className="text-green-400 text-center mt-2">{voteMsg}</div>}
+          <div className="flex gap-2">
+            <button
+              className="flex-1 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition"
+              onClick={() => handleVote(true)}
+              disabled={loading}
+            >
+              Votar Sí
+            </button>
+            <button
+              className="flex-1 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+              onClick={() => handleVote(false)}
+              disabled={loading}
+            >
+              Votar No
+            </button>
+          </div>
+          {voteMsg && (
+            <div className="text-green-400 text-center mt-2">{voteMsg}</div>
+          )}
         </>
       )}
     </div>

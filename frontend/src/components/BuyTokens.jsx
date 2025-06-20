@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { DAO_ADDRESS, DAO_ABI } from "../constants";
 import { ethers } from "ethers";
+import daoAbi from "../artifacts/DaoGovernance.json";
 
 function BuyTokens({ provider }) {
   const [amount, setAmount] = useState("");
@@ -14,11 +14,27 @@ function BuyTokens({ provider }) {
     setSuccess("");
     setLoading(true);
     try {
+      if (!provider) throw new Error("Conectá tu wallet primero");
       const signer = provider.getSigner();
-      const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, signer);
-      // Suponiendo que 1 token = 1 ETH (ajusta según tu lógica)
-      const value = ethers.utils.parseEther(amount);
-      const tx = await dao.buyTokens({ value });
+      // Obtener la dirección del contrato DAO desde las variables de entorno
+      const daoAddress = process.env.REACT_APP_DAO_ADDRESS;
+      if (!daoAddress || !ethers.utils.isAddress(daoAddress)) {
+        throw new Error("Dirección del contrato DAO no definida o inválida");
+      }
+      // Importar el ABI correctamente
+      const abi = daoAbi.abi || daoAbi;
+      const dao = new ethers.Contract(daoAddress, abi, signer);
+      // Obtener el precio del token
+      const tokenPriceWei = await dao.tokenPriceWei();
+      // Validar cantidad
+      if (!amount || isNaN(amount) || Number(amount) <= 0) {
+        throw new Error("Cantidad inválida");
+      }
+      // Calcular el valor total a enviar
+      const totalValue = ethers.BigNumber.from(tokenPriceWei).mul(
+        ethers.BigNumber.from(Math.floor(Number(amount)))
+      );
+      const tx = await dao.buyTokens({ value: totalValue });
       await tx.wait();
       setSuccess("Compra exitosa");
       setAmount("");
@@ -36,13 +52,17 @@ function BuyTokens({ provider }) {
           type="number"
           min="0.0001"
           step="any"
-          placeholder="Cantidad (ETH)"
+          placeholder="Cantidad (tokens)"
           className="rounded-lg px-4 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={amount}
-          onChange={e => setAmount(e.target.value)}
+          onChange={(e) => setAmount(e.target.value)}
           disabled={loading}
         />
-        <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={loading || !amount}>
+        <button
+          type="submit"
+          className="py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow hover:scale-105 transition-transform"
+          disabled={loading || !amount}
+        >
           {loading ? "Comprando..." : "Comprar"}
         </button>
         {error && <div className="text-red-400 text-center">{error}</div>}
