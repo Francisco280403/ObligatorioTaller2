@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Acer\\Desktop\\Taller de tec 2\\ObligatorioTaller2\\backend\\contracts\\DaoGovernance.sol": {
-      "lastModificationDate": 1750459654223,
-      "contentHash": "c23a1de46d0b40bc2af58695361146f7",
+      "lastModificationDate": 1750530143731,
+      "contentHash": "a2906611166410c785e5c122dec72a41",
       "sourceName": "contracts/DaoGovernance.sol",
       "solcConfig": {
         "version": "0.8.20",

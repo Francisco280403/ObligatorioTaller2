@@ -69,12 +69,30 @@ app.post("/unstake/propose", async (req, res) => {
 app.post("/proposals", async (req, res) => {
   try {
     console.log("/proposals endpoint called with:", req.body);
-    const { title, description } = req.body;
+    const { title, description, address } = req.body;
     if (!title || !description) {
       return res.status(400).json({ error: "Faltan título o descripción" });
     }
+    // Verificar stake para proponer antes de llamar al contrato
+    const stake = await dao.stakePropose(address);
+    if (stake.lt(ethers.utils.parseUnits("10", 18))) {
+      return res.status(400).json({ error: "Minimo 10 tokens para proponer" });
+    }
     const tx = await dao.createProposal(title, description);
     await tx.wait();
+    // Log para depuración: obtener la última propuesta creada
+    const count = await dao.proposalCount();
+    const p = await dao.proposals(count);
+    console.log("Propuesta creada:", {
+      id: p.id?.toString?.() || p.id,
+      title: p.title,
+      description: p.description,
+      start: p.start,
+      end: p.end,
+      forVotes: p.forVotes,
+      againstVotes: p.againstVotes,
+      executed: p.executed
+    });
     res.json({ tx: tx.hash });
   } catch (e) {
     console.error("/proposals error:", e);
@@ -84,6 +102,12 @@ app.post("/proposals", async (req, res) => {
 
 app.post("/proposals/:id/vote", async (req, res) => {
   try {
+    const { address } = req.body;
+    // Verificar stake para votar antes de llamar al contrato
+    const stake = await dao.stakeVotes(address);
+    if (stake.lte(0)) {
+      return res.status(400).json({ error: "Debes tener tokens en stake para votar" });
+    }
     const tx = await dao.vote(req.params.id, req.body.support);
     await tx.wait();
     res.json({ tx: tx.hash });
@@ -136,6 +160,17 @@ app.get("/proposals/:id", async (req, res) => {
       weight: ev.args.weight.toString()
     }));
     const finals = await dao.queryFilter(dao.filters.Finalized(id));
+    // Conversión robusta de BigNumber a number o string a number
+    const { BigNumber } = require("ethers");
+    const toNum = v => {
+      try {
+        if (v && typeof v.toNumber === 'function') return v.toNumber();
+        if (typeof v === 'string') return Number(v);
+        if (typeof v === 'number') return v;
+        if (v && v._hex) return BigNumber.from(v._hex).toNumber();
+        return null;
+      } catch { return null; }
+    };
     res.json({
       id,
       title: p.title,
@@ -144,7 +179,9 @@ app.get("/proposals/:id", async (req, res) => {
       against: p.againstVotes.toString(),
       executed: p.executed,
       accepted: finals.length ? finals[0].args.accepted : null,
-      votes
+      votes,
+      start: toNum(p.start),
+      end: toNum(p.end)
     });
   } catch (e) {
     res.status(400).json({ error: e.message });

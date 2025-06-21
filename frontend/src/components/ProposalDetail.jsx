@@ -28,7 +28,16 @@ function ProposalDetail({ address, proposalId }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, support }),
       });
-      if (!res.ok) throw new Error("Error al votar");
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error && (data.error.includes("tokens en stake para votar") || data.error.includes("Debes tener tokens en stake para votar"))) {
+          setError("No tienes tokens en stake para votar");
+        } else {
+          setError(data.error || "Error al votar");
+        }
+        setLoading(false);
+        return;
+      }
       setVoteMsg("Voto registrado correctamente");
     } catch (e) {
       setError(e.message);
@@ -38,6 +47,7 @@ function ProposalDetail({ address, proposalId }) {
 
   if (!proposalId) return null;
 
+  // Mostrar error en la UI
   return (
     <div className="bg-white/10 backdrop-blur rounded-xl p-6 shadow-lg border border-white/20">
       <h2 className="text-xl font-bold text-white mb-2">Detalle de Propuesta</h2>
@@ -45,6 +55,7 @@ function ProposalDetail({ address, proposalId }) {
       {error && <div className="text-red-400">{error}</div>}
       {proposal && (
         <>
+          {console.log("DEBUG proposal:", proposal)}
           <div className="text-white font-bold mb-2">{proposal.title}</div>
           <div className="text-gray-200 mb-4">{proposal.description}</div>
           <div className="mb-4 text-white">

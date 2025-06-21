@@ -10,6 +10,9 @@ import TokenBalance    from "./components/TokenBalance";
 function App() {
   const [address, setAddress] = useState(null);
   const [provider, setProvider] = useState(null);
+  const [refreshBalances, setRefreshBalances] = useState(0);
+
+  const handleStakeChange = () => setRefreshBalances(r => r + 1);
 
   if (!address || !provider) return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
@@ -27,11 +30,11 @@ function App() {
           <h1 className="text-4xl font-extrabold text-white drop-shadow-lg tracking-tight mb-2">DAO Governance Platform</h1>
           <p className="text-lg text-gray-200">Gestioná tu DAO de forma simple, segura y moderna</p>
         </header>
-        <TokenBalance provider={provider} address={address} />
+        <TokenBalance provider={provider} address={address} refresh={refreshBalances} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
-            <BuyTokens provider={provider} />
-            <Staking  provider={provider} />
+            <BuyTokens provider={provider} onBuy={handleStakeChange} />
+            <Staking provider={provider} address={address} onStakeChange={handleStakeChange} />
           </div>
           <div className="space-y-6">
             <ProposalsList address={address} />

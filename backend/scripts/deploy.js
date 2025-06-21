@@ -22,8 +22,8 @@ async function main() {
     "VoteToken",
     "VOTE",
     ethers.utils.parseEther("0.01"), // token price: 0.01 ETH por token
-    3600, // lockPeriod
-    7200, // proposalDuration
+    60 * 2, // lockPeriod: 2 minutos
+    86400, // proposalDuration (24 horas)
     1, // voteUnit
     simple.address // initial strategy
   );

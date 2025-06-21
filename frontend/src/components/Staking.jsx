@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { API_BASE } from "../constants";
 import { ethers } from "ethers";
 
-function Staking({ address }) {
+function Staking({ address, onStakeChange }) {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,6 +28,7 @@ function Staking({ address }) {
       if (!res.ok) throw new Error("Error en el staking");
       setSuccess("Staking exitoso");
       setAmount("");
+      if (onStakeChange) onStakeChange();
     } catch (e) {
       setError(e.message);
     }
@@ -47,6 +48,7 @@ function Staking({ address }) {
       });
       if (!res.ok) throw new Error("Error al quitar stake");
       setSuccess("Stake quitado exitosamente");
+      if (onStakeChange) onStakeChange();
     } catch (e) {
       setError(e.message);
     }

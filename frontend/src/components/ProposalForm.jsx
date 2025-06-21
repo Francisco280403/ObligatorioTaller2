@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { API_BASE } from "../constants";
 
 function ProposalForm({ address }) {
@@ -19,7 +19,16 @@ function ProposalForm({ address }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, title, description }),
       });
-      if (!res.ok) throw new Error("Error al crear propuesta");
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error && data.error.includes("Minimo 10 tokens")) {
+          setError("Debes tener 10 tokens al menos en stake para proponer");
+        } else {
+          setError(data.error || "Error al crear propuesta");
+        }
+        setLoading(false);
+        return;
+      }
       setSuccess("Propuesta creada correctamente");
       setTitle("");
       setDescription("");

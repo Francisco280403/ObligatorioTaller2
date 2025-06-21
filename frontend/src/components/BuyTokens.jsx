@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ethers } from "ethers";
 import daoAbi from "../artifacts/DaoGovernance.json";
 
-function BuyTokens({ provider }) {
+function BuyTokens({ provider, onBuy }) {
   const [amount, setAmount] = useState(""); // tokens a comprar
   const [ethToSend, setEthToSend] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,8 +59,9 @@ function BuyTokens({ provider }) {
       setSuccess("Compra exitosa");
       setAmount("");
       setEthToSend("");
+      if (onBuy) onBuy();
     } catch (e) {
-      setError(e.reason || e.message);
+      setError(e.message);
     }
     setLoading(false);
   };

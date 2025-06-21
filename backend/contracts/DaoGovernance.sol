@@ -109,6 +109,7 @@ contract DaoGovernance {
 
     // Gobernanza
     function createProposal(string memory title, string memory description) external {
+        require(stakePropose[msg.sender] >= 10 * 1e18, "Minimo 10 tokens para proponer");
         _proposalCount++;
         Proposal storage p = proposals[_proposalCount];
         p.id = _proposalCount;
