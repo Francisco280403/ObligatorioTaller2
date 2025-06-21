@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { API_BASE } from "../constants";
+import { ethers } from "ethers";
 
 function Staking({ address }) {
   const [amount, setAmount] = useState("");
@@ -17,10 +18,12 @@ function Staking({ address }) {
     setLoading(true);
     try {
       const endpoint = stakeType === "vote" ? "stake/vote" : "stake/propose";
+      // Convertir a wei
+      const amountWei = ethers.utils.parseUnits(amount, 18).toString();
       const res = await fetch(`${API_BASE}/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, amount }),
+        body: JSON.stringify({ address, amount: amountWei }),
       });
       if (!res.ok) throw new Error("Error en el staking");
       setSuccess("Staking exitoso");
