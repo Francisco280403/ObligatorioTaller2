@@ -34,6 +34,25 @@ function Staking({ address }) {
     setLoading(false);
   };
 
+  const handleUnstake = async (type) => {
+    setError("");
+    setSuccess("");
+    setLoading(true);
+    try {
+      const endpoint = type === "vote" ? "unstake/vote" : "unstake/propose";
+      const res = await fetch(`${API_BASE}/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address }),
+      });
+      if (!res.ok) throw new Error("Error al quitar stake");
+      setSuccess("Stake quitado exitosamente");
+    } catch (e) {
+      setError(e.message);
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="bg-white/10 backdrop-blur rounded-xl p-6 shadow-lg border border-white/20">
       <h2 className="text-xl font-bold text-white mb-2">Staking</h2>
@@ -67,6 +86,22 @@ function Staking({ address }) {
         {error && <div className="text-red-400 text-center">{error}</div>}
         {success && <div className="text-green-400 text-center">{success}</div>}
       </form>
+      <div className="flex gap-2 mt-4">
+        <button
+          className="flex-1 py-2 rounded-lg bg-red-500 text-white font-semibold shadow hover:scale-105 transition-transform disabled:opacity-50"
+          disabled={loading}
+          onClick={() => handleUnstake("vote")}
+        >
+          Quitar stake para votar
+        </button>
+        <button
+          className="flex-1 py-2 rounded-lg bg-red-700 text-white font-semibold shadow hover:scale-105 transition-transform disabled:opacity-50"
+          disabled={loading}
+          onClick={() => handleUnstake("propose")}
+        >
+          Quitar stake para proponer
+        </button>
+      </div>
     </div>
   );
 }
