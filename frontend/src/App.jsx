@@ -4,7 +4,7 @@ import BuyTokens       from "./components/BuyTokens";
 import Staking         from "./components/Staking";
 import ProposalsList   from "./components/ProposalsList";
 import ProposalDetail  from "./components/ProposalDetail";
-import AdminPanel      from "./components/AdminPanel";
+import ProposalForm    from "./components/ProposalForm";
 import TokenBalance    from "./components/TokenBalance";
 
 function App() {
@@ -36,7 +36,7 @@ function App() {
           <div className="space-y-6">
             <ProposalsList address={address} />
             <ProposalDetail address={address} />
-            <AdminPanel address={address} />
+            <ProposalForm address={address} />
           </div>
         </div>
       </div>
