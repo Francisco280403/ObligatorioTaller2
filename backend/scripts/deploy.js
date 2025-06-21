@@ -25,7 +25,8 @@ async function main() {
     60 * 2, // lockPeriod: 2 minutos
     86400, // proposalDuration (24 horas)
     1, // voteUnit
-    simple.address // initial strategy
+    simple.address, // initial strategy
+    deployer.address // owner
   );
   await dao.deployed();
 
@@ -45,6 +46,7 @@ async function main() {
     `REACT_APP_VOTING_TOKEN_ADDRESS=${tokenAddr}`,
     `REACT_APP_SIMPLE_STRATEGY_ADDRESS=${simple.address}`,
     `REACT_APP_FULLQUORUM_STRATEGY_ADDRESS=${fq.address}`,
+    `REACT_APP_OWNER_ADDRESS=${deployer.address}`,
   ]
     .join("\n")
     .concat("\n");
@@ -68,6 +70,7 @@ async function main() {
     `VOTING_TOKEN_ADDRESS=${tokenAddr}`,
     `SIMPLE_STRATEGY_ADDRESS=${simple.address}`,
     `FULLQUORUM_STRATEGY_ADDRESS=${fq.address}`,
+    `OWNER_ADDRESS=${deployer.address}`,
   ]
     .join("\n")
     .concat("\n")

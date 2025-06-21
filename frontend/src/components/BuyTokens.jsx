@@ -54,12 +54,21 @@ function BuyTokens({ provider, onBuy }) {
       const totalValue = ethers.BigNumber.from(tokenPriceWei).mul(
         ethers.BigNumber.from(Math.floor(Number(amount)))
       );
-      const tx = await dao.buyTokens({ value: totalValue });
-      await tx.wait();
-      setSuccess("Compra exitosa");
-      setAmount("");
-      setEthToSend("");
-      if (onBuy) onBuy();
+      try {
+        const tx = await dao.buyTokens({ value: totalValue });
+        await tx.wait();
+        setSuccess("Compra exitosa");
+        // Esperar 1 segundo antes de refrescar el supply
+        setTimeout(() => { if (onBuy) onBuy(); }, 1000);
+        setAmount("");
+        setEthToSend("");
+      } catch (err) {
+        if (err && err.message && err.message.includes("No hay tokens disponibles para comprar")) {
+          setError("No hay tokens disponibles en la DAO");
+        } else {
+          setError(err.message || "Error al comprar tokens");
+        }
+      }
     } catch (e) {
       setError(e.message);
     }

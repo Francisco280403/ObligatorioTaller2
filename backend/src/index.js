@@ -188,6 +188,22 @@ app.get("/proposals/:id", async (req, res) => {
   }
 });
 
+app.post("/admin/mint", async (req, res) => {
+  try {
+    const { to, amount } = req.body;
+    if (!to || !amount) return res.status(400).json({ error: "Faltan parámetros" });
+    // Solo el owner puede mintear
+    if (wallet.address.toLowerCase() !== process.env.OWNER_ADDRESS.toLowerCase()) {
+      return res.status(403).json({ error: "Solo el owner puede mintear" });
+    }
+    const tx = await dao.mintTokens(to, amount);
+    await tx.wait();
+    res.json({ tx: tx.hash });
+  } catch (e) {
+    res.status(400).json({ error: e.reason || e.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`API REST escuchando en http://localhost:${PORT}`);

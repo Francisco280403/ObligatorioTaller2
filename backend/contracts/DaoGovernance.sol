@@ -56,14 +56,23 @@ contract DaoGovernance {
         uint256 _lockPeriod,
         uint256 _proposalDuration,
         uint256 _voteUnit,
-        address initialStrategy
+        address initialStrategy,
+        address _owner
     ) {
-        token = new VotingToken(tokenName, tokenSymbol, address(this));
+        token = new VotingToken(tokenName, tokenSymbol, address(this), _owner);
         tokenPriceWei = _tokenPriceWei;
         lockPeriod = _lockPeriod;
         proposalDuration = _proposalDuration;
         voteUnit = _voteUnit;
         votingStrategy = IVotingStrategy(initialStrategy);
+        owner = _owner;
+    }
+
+    address public owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
+        _;
     }
 
     // Estrategia dinámica
@@ -76,7 +85,16 @@ contract DaoGovernance {
     function buyTokens() external payable {
         require(msg.value >= tokenPriceWei, "Insufficient ETH");
         uint256 amount = (msg.value * 1e18) / tokenPriceWei;
-        token.mint(msg.sender, amount);
+        uint256 daoBalance = token.balanceOf(address(this));
+        if (amount > daoBalance) {
+            amount = daoBalance;
+        }
+        require(amount > 0, "No hay tokens disponibles para comprar");
+        token.transfer(msg.sender, amount);
+    }
+
+    function mintTokens(address to, uint256 amount) external onlyOwner {
+        token.mint(to, amount);
     }
 
     // Staking (opcional, solo para votar)
