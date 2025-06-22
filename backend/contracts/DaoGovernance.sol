@@ -186,6 +186,10 @@ contract DaoGovernance {
     function setMinStakePropose(uint256 _minStakePropose) external onlyOwner {
         minStakePropose = _minStakePropose;
     }
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Nuevo owner invalido");
+        owner = newOwner;
+    }
 
     // Getter público para la cantidad de propuestas
     function proposalCount() public view returns (uint256) {

@@ -1,16 +1,31 @@
-import React, { useState } from "react";
-import { API_BASE, DAO_ADDRESS } from "../constants";
+import React, { useState, useEffect } from "react";
+import { API_BASE, DAO_ADDRESS, DAO_ABI } from "../constants";
 import { ethers } from "ethers";
 
-function AdminMint({ address, onMint }) {
+function AdminMint({ address, provider, onMint }) {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [currentOwner, setCurrentOwner] = useState("");
 
-  // Solo mostrar si el address es el owner
-  const owner = process.env.REACT_APP_OWNER_ADDRESS ? process.env.REACT_APP_OWNER_ADDRESS.toLowerCase() : null;
-  if (!address || !owner || (typeof address !== "string") || address.toLowerCase() !== owner) return null;
+  // Consultar el owner real del contrato
+  useEffect(() => {
+    if (!provider) return;
+    const fetchOwner = async () => {
+      try {
+        const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
+        const ownerAddr = await dao.owner();
+        setCurrentOwner(ownerAddr.toLowerCase());
+      } catch (e) {
+        setCurrentOwner("");
+      }
+    };
+    fetchOwner();
+  }, [provider]);
+
+  // Solo mostrar si el address es el owner actual
+  if (!address || !currentOwner || (typeof address !== "string") || address.toLowerCase() !== currentOwner) return null;
 
   const handleMint = async (e) => {
     e.preventDefault();

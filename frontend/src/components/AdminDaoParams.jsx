@@ -14,10 +14,26 @@ function AdminDaoParams({ provider, address }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [newOwner, setNewOwner] = useState("");
+  const [transferLoading, setTransferLoading] = useState(false);
+  const [transferError, setTransferError] = useState("");
+  const [transferSuccess, setTransferSuccess] = useState("");
+  const [currentOwner, setCurrentOwner] = useState("");
 
-  // Solo mostrar si el address es el owner
-  const owner = process.env.REACT_APP_OWNER_ADDRESS?.toLowerCase();
-  if (!address || !owner || address.toLowerCase() !== owner) return null;
+  // Consultar el owner real del contrato
+  useEffect(() => {
+    if (!provider) return;
+    const fetchOwner = async () => {
+      try {
+        const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
+        const ownerAddr = await dao.owner();
+        setCurrentOwner(ownerAddr.toLowerCase());
+      } catch (e) {
+        setCurrentOwner("");
+      }
+    };
+    fetchOwner();
+  }, [provider, transferSuccess]);
 
   // Cargar valores actuales
   useEffect(() => {
@@ -66,6 +82,27 @@ function AdminDaoParams({ provider, address }) {
     setLoading(false);
   };
 
+  const handleTransferOwnership = async (e) => {
+    e.preventDefault();
+    setTransferError("");
+    setTransferSuccess("");
+    setTransferLoading(true);
+    try {
+      const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider.getSigner());
+      const tx = await dao.transferOwnership(newOwner);
+      await tx.wait();
+      setTransferSuccess("Ownership transferida correctamente");
+      setNewOwner("");
+    } catch (e) {
+      setTransferError(e.reason || e.message);
+    }
+    setTransferLoading(false);
+  };
+
+  // Solo mostrar si el address es el owner actual
+  const isOwner = address && currentOwner && address.toLowerCase() === currentOwner;
+  if (!isOwner) return null;
+
   return (
     <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 mt-6">
       <h2 className="text-xl font-bold text-white mb-2">Parámetros de la DAO (Owner)</h2>
@@ -92,6 +129,15 @@ function AdminDaoParams({ provider, address }) {
         <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={loading}>Actualizar parámetros</button>
         {error && <div className="text-red-400 mt-2 text-center">{error}</div>}
         {success && <div className="text-green-400 mt-2 text-center">{success}</div>}
+      </form>
+      <hr className="my-4 border-white/20" />
+      <form className="flex flex-col gap-3" onSubmit={handleTransferOwnership}>
+        <label className="text-white">Transferir ownership a (dirección):
+          <input type="text" value={newOwner} onChange={e => setNewOwner(e.target.value)} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={transferLoading} />
+        </label>
+        <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={transferLoading || !newOwner}>Transferir ownership</button>
+        {transferError && <div className="text-red-400 mt-2 text-center">{transferError}</div>}
+        {transferSuccess && <div className="text-green-400 mt-2 text-center">{transferSuccess}</div>}
       </form>
     </div>
   );

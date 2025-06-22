@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ethers } from "ethers";
 import WalletConnector from "./components/WalletConnector";
 import BuyTokens       from "./components/BuyTokens";
 import Staking         from "./components/Staking";
@@ -9,12 +10,14 @@ import TokenBalance    from "./components/TokenBalance";
 import DaoTokenSupply  from "./components/DaoTokenSupply";
 import AdminMint       from "./components/AdminMint";
 import AdminDaoParams  from "./components/AdminDaoParams";
+import { DAO_ADDRESS, DAO_ABI } from "./constants";
 
 function App() {
   const [address, setAddress] = useState(null);
   const [provider, setProvider] = useState(null);
   const [refreshBalances, setRefreshBalances] = useState(0);
   const [refreshDaoSupply, setRefreshDaoSupply] = useState(0);
+  const [currentOwner, setCurrentOwner] = useState("");
 
   const handleStakeChange = () => setRefreshBalances(r => r + 1);
   const handleMint = () => setRefreshDaoSupply(r => r + 1);
@@ -22,6 +25,20 @@ function App() {
     setRefreshBalances(r => r + 1);
     setRefreshDaoSupply(r => r + 1);
   };
+
+  React.useEffect(() => {
+    if (!provider) return;
+    const fetchOwner = async () => {
+      try {
+        const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
+        const ownerAddr = await dao.owner();
+        setCurrentOwner(ownerAddr);
+      } catch {
+        setCurrentOwner("");
+      }
+    };
+    fetchOwner();
+  }, [provider, address]);
 
   if (!address || !provider) return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
@@ -41,7 +58,7 @@ function App() {
           {/* Debug: Mostrar address conectada y owner esperado */}
           <div className="mt-4 p-2 rounded bg-white/10 border border-white/20 text-white text-sm">
             <div><span className="font-semibold">Wallet conectada:</span> {address}</div>
-            <div><span className="font-semibold">Owner:</span> {process.env.REACT_APP_OWNER_ADDRESS}</div>
+            <div><span className="font-semibold">Owner:</span> {currentOwner}</div>
           </div>
         </header>
         <DaoTokenSupply provider={provider} refresh={refreshDaoSupply} />
@@ -56,7 +73,7 @@ function App() {
             <ProposalDetail address={address} />
             <ProposalForm address={address} />
             <AdminDaoParams provider={provider} address={address} />
-            <AdminMint address={address} onMint={handleMint} />
+            <AdminMint address={address} provider={provider} onMint={handleMint} />
           </div>
         </div>
       </div>
