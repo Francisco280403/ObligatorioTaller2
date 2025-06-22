@@ -51,7 +51,22 @@ function ProposalsList({ address }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, support }),
       });
-      if (!res.ok) throw new Error("Error al votar");
+      let data = {};
+      let isJson = false;
+      try {
+        data = await res.clone().json();
+        isJson = true;
+      } catch { isJson = false; }
+      if (!res.ok) {
+        if (isJson && data.error) {
+          setVoteMsg(data.error);
+        } else {
+          const text = await res.text();
+          setVoteMsg(text || "Error al votar");
+        }
+        setVoteLoading(false);
+        return;
+      }
       setVoteMsg("Voto registrado correctamente");
     } catch (e) {
       setVoteMsg(e.message);

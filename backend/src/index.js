@@ -74,9 +74,12 @@ app.post("/proposals", async (req, res) => {
       return res.status(400).json({ error: "Faltan título o descripción" });
     }
     // Verificar stake para proponer antes de llamar al contrato
+    const minStake = await dao.minStakePropose();
     const stake = await dao.stakePropose(address);
-    if (stake.lt(ethers.utils.parseUnits("10", 18))) {
-      return res.status(400).json({ error: "Minimo 10 tokens para proponer" });
+    if (stake.lt(minStake)) {
+      const minTokens = ethers.utils.formatUnits(minStake, 18);
+      const userTokens = ethers.utils.formatUnits(stake, 18);
+      return res.status(400).json({ error: `No tenés suficiente stake para proponer. Necesitás al menos ${minTokens} tokens en stake y tenés ${userTokens}.` });
     }
     const tx = await dao.createProposal(title, description);
     await tx.wait();
@@ -104,9 +107,12 @@ app.post("/proposals/:id/vote", async (req, res) => {
   try {
     const { address } = req.body;
     // Verificar stake para votar antes de llamar al contrato
+    const minStake = await dao.minStakeVote();
     const stake = await dao.stakeVotes(address);
-    if (stake.lte(0)) {
-      return res.status(400).json({ error: "Debes tener tokens en stake para votar" });
+    if (stake.lt(minStake)) {
+      const minTokens = ethers.utils.formatUnits(minStake, 18);
+      const userTokens = ethers.utils.formatUnits(stake, 18);
+      return res.status(400).json({ error: `No tenés suficiente stake para votar. Necesitás al menos ${minTokens} tokens en stake y tenés ${userTokens}.` });
     }
     const tx = await dao.vote(req.params.id, req.body.support);
     await tx.wait();
@@ -190,13 +196,13 @@ app.get("/proposals/:id", async (req, res) => {
 
 app.post("/admin/mint", async (req, res) => {
   try {
-    const { to, amount } = req.body;
-    if (!to || !amount) return res.status(400).json({ error: "Faltan parámetros" });
+    const { amount } = req.body;
+    if (!amount) return res.status(400).json({ error: "Faltan parámetros" });
     // Solo el owner puede mintear
     if (wallet.address.toLowerCase() !== process.env.OWNER_ADDRESS.toLowerCase()) {
       return res.status(403).json({ error: "Solo el owner puede mintear" });
     }
-    const tx = await dao.mintTokens(to, amount);
+    const tx = await dao.mintTokens(amount);
     await tx.wait();
     res.json({ tx: tx.hash });
   } catch (e) {

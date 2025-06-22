@@ -28,12 +28,18 @@ function ProposalDetail({ address, proposalId }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, support }),
       });
-      const data = await res.json();
+      let data = {};
+      let isJson = false;
+      try {
+        data = await res.clone().json();
+        isJson = true;
+      } catch { isJson = false; }
       if (!res.ok) {
-        if (data.error && (data.error.includes("tokens en stake para votar") || data.error.includes("Debes tener tokens en stake para votar"))) {
-          setError("No tienes tokens en stake para votar");
+        if (isJson && data.error) {
+          setError(data.error);
         } else {
-          setError(data.error || "Error al votar");
+          const text = await res.text();
+          setError(text || "Error al votar");
         }
         setLoading(false);
         return;

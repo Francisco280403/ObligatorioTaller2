@@ -8,6 +8,7 @@ import ProposalForm    from "./components/ProposalForm";
 import TokenBalance    from "./components/TokenBalance";
 import DaoTokenSupply  from "./components/DaoTokenSupply";
 import AdminMint       from "./components/AdminMint";
+import AdminDaoParams  from "./components/AdminDaoParams";
 
 function App() {
   const [address, setAddress] = useState(null);
@@ -54,6 +55,7 @@ function App() {
             <ProposalsList address={address} />
             <ProposalDetail address={address} />
             <ProposalForm address={address} />
+            <AdminDaoParams provider={provider} address={address} />
             <AdminMint address={address} onMint={handleMint} />
           </div>
         </div>

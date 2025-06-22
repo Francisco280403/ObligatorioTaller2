@@ -23,14 +23,15 @@ function AdminMint({ address, onMint }) {
       const res = await fetch(`${API_BASE}/admin/mint`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to: DAO_ADDRESS, amount: amountParsed }),
+        body: JSON.stringify({ amount: amountParsed }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al mintear");
       setSuccess("Tokens minteados correctamente");
       setAmount("");
-      // Esperar 1 segundo antes de refrescar el supply
+      // Refrescar el supply dos veces para asegurar actualización
       setTimeout(() => { if (onMint) onMint(); }, 1000);
+      setTimeout(() => { if (onMint) onMint(); }, 2000);
     } catch (e) {
       setError(e.message);
     }

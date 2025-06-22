@@ -22,6 +22,8 @@ contract DaoGovernance {
     uint256 public lockPeriod;
     uint256 public proposalDuration;
     uint256 public voteUnit;
+    uint256 public minStakeVote;
+    uint256 public minStakePropose;
 
     uint256 private _proposalCount;
 
@@ -66,6 +68,8 @@ contract DaoGovernance {
         voteUnit = _voteUnit;
         votingStrategy = IVotingStrategy(initialStrategy);
         owner = _owner;
+        minStakeVote = 1e18; // default 1 token
+        minStakePropose = 10e18; // default 10 tokens
     }
 
     address public owner;
@@ -93,12 +97,13 @@ contract DaoGovernance {
         token.transfer(msg.sender, amount);
     }
 
-    function mintTokens(address to, uint256 amount) external onlyOwner {
-        token.mint(to, amount);
+    function mintTokens(uint256 amount) external onlyOwner {
+        token.mint(address(this), amount);
     }
 
     // Staking (opcional, solo para votar)
     function stakeForVote(uint256 amount) external {
+        require(amount >= minStakeVote, "Minimo para votar");
         require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         stakeVotes[msg.sender] += amount;
         voteStakeUnlock[msg.sender] = block.timestamp + lockPeriod;
@@ -113,6 +118,7 @@ contract DaoGovernance {
 
     // Staking para proponer
     function stakeForProposal(uint256 amount) external {
+        require(amount >= minStakePropose, "Minimo para proponer");
         require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         stakePropose[msg.sender] += amount;
         proposeStakeUnlock[msg.sender] = block.timestamp + lockPeriod;
@@ -127,7 +133,7 @@ contract DaoGovernance {
 
     // Gobernanza
     function createProposal(string memory title, string memory description) external {
-        require(stakePropose[msg.sender] >= 10 * 1e18, "Minimo 10 tokens para proponer");
+        require(stakePropose[msg.sender] >= minStakePropose, "Minimo para proponer");
         _proposalCount++;
         Proposal storage p = proposals[_proposalCount];
         p.id = _proposalCount;
@@ -159,6 +165,26 @@ contract DaoGovernance {
         bool accepted = votingStrategy.isAccepted(p.forVotes, p.againstVotes, totalPower);
         p.executed = true;
         emit Finalized(proposalId, accepted);
+    }
+
+    // Setters de parámetros soloOwner
+    function setTokenPriceWei(uint256 _tokenPriceWei) external onlyOwner {
+        tokenPriceWei = _tokenPriceWei;
+    }
+    function setLockPeriod(uint256 _lockPeriod) external onlyOwner {
+        lockPeriod = _lockPeriod;
+    }
+    function setProposalDuration(uint256 _proposalDuration) external onlyOwner {
+        proposalDuration = _proposalDuration;
+    }
+    function setVoteUnit(uint256 _voteUnit) external onlyOwner {
+        voteUnit = _voteUnit;
+    }
+    function setMinStakeVote(uint256 _minStakeVote) external onlyOwner {
+        minStakeVote = _minStakeVote;
+    }
+    function setMinStakePropose(uint256 _minStakePropose) external onlyOwner {
+        minStakePropose = _minStakePropose;
     }
 
     // Getter público para la cantidad de propuestas

@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Acer\\Desktop\\Taller de tec 2\\ObligatorioTaller2\\backend\\contracts\\DaoGovernance.sol": {
-      "lastModificationDate": 1750541032007,
-      "contentHash": "a4e4b2fbd573b7a564bf98b9dbda02df",
+      "lastModificationDate": 1750551768753,
+      "contentHash": "25376b44eee0945c9687f927018cb667",
       "sourceName": "contracts/DaoGovernance.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -41,7 +41,7 @@
       ]
     },
     "C:\\Users\\Acer\\Desktop\\Taller de tec 2\\ObligatorioTaller2\\backend\\contracts\\VotingToken.sol": {
-      "lastModificationDate": 1750540434880,
+      "lastModificationDate": 1750544871502,
       "contentHash": "0a3d7d51a63373a9c56b214955f0b390",
       "sourceName": "contracts/VotingToken.sol",
       "solcConfig": {

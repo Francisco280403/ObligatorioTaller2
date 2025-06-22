@@ -58,8 +58,9 @@ function BuyTokens({ provider, onBuy }) {
         const tx = await dao.buyTokens({ value: totalValue });
         await tx.wait();
         setSuccess("Compra exitosa");
-        // Esperar 1 segundo antes de refrescar el supply
+        // Esperar 1 y 2 segundos antes de refrescar el supply y balances
         setTimeout(() => { if (onBuy) onBuy(); }, 1000);
+        setTimeout(() => { if (onBuy) onBuy(); }, 2000);
         setAmount("");
         setEthToSend("");
       } catch (err) {

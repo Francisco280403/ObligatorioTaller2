@@ -83,6 +83,26 @@ async function main() {
   fs.writeFileSync(frontendEnvPath, frontendEnv);
   fs.writeFileSync(backendEnvPath, backendEnv);
 
+  // Copiar ABIs actualizados al frontend
+  const daoAbiSrc = path.resolve(
+    __dirname,
+    "../artifacts/contracts/DaoGovernance.sol/DaoGovernance.json"
+  );
+  const tokenAbiSrc = path.resolve(
+    __dirname,
+    "../artifacts/contracts/VotingToken.sol/VotingToken.json"
+  );
+  const daoAbiDest = path.resolve(
+    __dirname,
+    "../../frontend/src/artifacts/DaoGovernance.json"
+  );
+  const tokenAbiDest = path.resolve(
+    __dirname,
+    "../../frontend/src/artifacts/VotingToken.json"
+  );
+  fs.copyFileSync(daoAbiSrc, daoAbiDest);
+  fs.copyFileSync(tokenAbiSrc, tokenAbiDest);
+
   console.log(
     "\nArchivos .env de frontend y backend actualizados automáticamente.\n"
   );

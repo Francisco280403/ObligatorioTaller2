@@ -21,7 +21,9 @@ function ProposalForm({ address }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.error && data.error.includes("Minimo 10 tokens")) {
+        if (data.error && data.error.includes("suficiente stake para proponer")) {
+          setError(data.error);
+        } else if (data.error && data.error.includes("Minimo 10 tokens")) {
           setError("Debes tener 10 tokens al menos en stake para proponer");
         } else {
           setError(data.error || "Error al crear propuesta");
