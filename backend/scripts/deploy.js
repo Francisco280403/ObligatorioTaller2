@@ -30,6 +30,11 @@ async function main() {
   );
   await dao.deployed();
 
+  // Setear la panicWallet (por defecto igual al owner, pero puede cambiarse luego)
+  const txPanic = await dao.setPanicWallet(deployer.address);
+  await txPanic.wait();
+  console.log("Panic wallet seteada:", deployer.address);
+
   console.log("DAO Contract:", dao.address);
   console.log("SimpleStrategy:", simple.address);
   console.log("FullQuorumStrategy:", fq.address);

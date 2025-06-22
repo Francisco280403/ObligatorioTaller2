@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import WalletConnector from "./components/WalletConnector";
 import BuyTokens       from "./components/BuyTokens";
@@ -18,6 +18,9 @@ function App() {
   const [refreshBalances, setRefreshBalances] = useState(0);
   const [refreshDaoSupply, setRefreshDaoSupply] = useState(0);
   const [currentOwner, setCurrentOwner] = useState("");
+  // --- PANIC STATE ---
+  const [isPanicked, setIsPanicked] = useState(false);
+  const [panicWallet, setPanicWallet] = useState("");
 
   const handleStakeChange = () => setRefreshBalances(r => r + 1);
   const handleMint = () => setRefreshDaoSupply(r => r + 1);
@@ -28,16 +31,28 @@ function App() {
 
   React.useEffect(() => {
     if (!provider) return;
-    const fetchOwner = async () => {
+    const fetchOwnerAndPanic = async () => {
       try {
         const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
         const ownerAddr = await dao.owner();
         setCurrentOwner(ownerAddr);
+        setIsPanicked(await dao.isPanicked());
+        setPanicWallet((await dao.panicWallet()).toLowerCase());
       } catch {
         setCurrentOwner("");
+        setIsPanicked(false);
+        setPanicWallet("");
       }
     };
-    fetchOwner();
+    fetchOwnerAndPanic();
+  }, [provider, address]);
+
+  React.useEffect(() => {
+    window.provider = provider;
+    window.DAO_ADDRESS = DAO_ADDRESS;
+    window.DAO_ABI = DAO_ABI;
+    window.address = address;
+    window.ethers = ethers;
   }, [provider, address]);
 
   if (!address || !provider) return (
@@ -49,6 +64,21 @@ function App() {
     </div>
   );
 
+  // Si está en pánico, solo mostrar mensaje y botón de tranquilidad si corresponde
+  if (isPanicked) {
+    const isPanicWallet = address && panicWallet && address.toLowerCase() === panicWallet;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
+        <div className="bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-8 max-w-md w-full border border-white/20 text-center">
+          <h1 className="text-3xl font-bold text-red-400 mb-6">DAO en estado de PÁNICO</h1>
+          <p className="text-white mb-4">Todas las operaciones están bloqueadas.<br/>Solo la <b>panic wallet</b> puede reactivar la DAO.</p>
+          <div className="mb-2 text-white"><b>Panic wallet:</b> <span className="font-mono">{panicWallet}</span></div>
+          {isPanicWallet && <AdminDaoParams provider={provider} address={address} />}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900 py-10 px-2">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -58,24 +88,17 @@ function App() {
           {/* Debug: Mostrar address conectada y owner esperado */}
           <div className="mt-4 p-2 rounded bg-white/10 border border-white/20 text-white text-sm">
             <div><span className="font-semibold">Wallet conectada:</span> {address}</div>
-            <div><span className="font-semibold">Owner:</span> {currentOwner}</div>
+            <div><span className="font-semibold">Owner actual:</span> {currentOwner}</div>
           </div>
         </header>
-        <DaoTokenSupply provider={provider} refresh={refreshDaoSupply} />
-        <TokenBalance provider={provider} address={address} refresh={refreshBalances} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <BuyTokens provider={provider} onBuy={handleBuy} />
-            <Staking provider={provider} address={address} onStakeChange={handleStakeChange} />
-          </div>
-          <div className="space-y-6">
-            <ProposalsList address={address} />
-            <ProposalDetail address={address} />
-            <ProposalForm address={address} />
-            <AdminDaoParams provider={provider} address={address} />
-            <AdminMint address={address} provider={provider} onMint={handleMint} />
-          </div>
-        </div>
+        <DaoTokenSupply provider={provider} refresh={refreshDaoSupply} isPanicked={isPanicked} />
+        <TokenBalance provider={provider} address={address} refresh={refreshBalances} isPanicked={isPanicked} />
+        <BuyTokens provider={provider} onBuy={handleBuy} isPanicked={isPanicked} />
+        <Staking address={address} onStakeChange={handleStakeChange} isPanicked={isPanicked} />
+        <ProposalForm address={address} isPanicked={isPanicked} />
+        <ProposalsList address={address} isPanicked={isPanicked} />
+        <AdminMint provider={provider} address={address} onMint={handleMint} />
+        <AdminDaoParams provider={provider} address={address} />
       </div>
     </div>
   );

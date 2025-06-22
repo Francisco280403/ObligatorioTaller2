@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import tokenAbi from "../artifacts/VotingToken.json";
 import { DAO_ADDRESS } from "../constants";
 
-function DaoTokenSupply({ provider, refresh }) {
+function DaoTokenSupply({ provider, refresh, isPanicked }) {
   const [supply, setSupply] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,6 +27,14 @@ function DaoTokenSupply({ provider, refresh }) {
     };
     fetchSupply();
   }, [provider, refresh]);
+
+  if (isPanicked) {
+    return (
+      <div className="bg-white/10 rounded-lg px-4 py-2 text-white text-center border border-white/20 mb-4 text-red-400 font-bold">
+        La DAO está en pánico. No se puede consultar el supply.
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/10 rounded-lg px-4 py-2 text-white text-center border border-white/20 mb-4">

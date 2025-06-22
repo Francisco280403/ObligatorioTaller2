@@ -19,6 +19,13 @@ function AdminDaoParams({ provider, address }) {
   const [transferError, setTransferError] = useState("");
   const [transferSuccess, setTransferSuccess] = useState("");
   const [currentOwner, setCurrentOwner] = useState("");
+  // --- PANIC STATE ---
+  const [panicWallet, setPanicWallet] = useState("");
+  const [isPanicked, setIsPanicked] = useState(false);
+  const [panicLoading, setPanicLoading] = useState(false);
+  const [panicError, setPanicError] = useState("");
+  const [panicSuccess, setPanicSuccess] = useState("");
+  const [newPanicWallet, setNewPanicWallet] = useState("");
 
   // Consultar el owner real del contrato
   useEffect(() => {
@@ -34,6 +41,22 @@ function AdminDaoParams({ provider, address }) {
     };
     fetchOwner();
   }, [provider, transferSuccess]);
+
+  // Consultar estado de pánico y wallet
+  useEffect(() => {
+    if (!provider) return;
+    const fetchPanic = async () => {
+      try {
+        const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
+        setPanicWallet((await dao.panicWallet()).toLowerCase());
+        setIsPanicked(await dao.isPanicked());
+      } catch (e) {
+        setPanicWallet("");
+        setIsPanicked(false);
+      }
+    };
+    fetchPanic();
+  }, [provider, panicSuccess]);
 
   // Cargar valores actuales
   useEffect(() => {
@@ -99,46 +122,158 @@ function AdminDaoParams({ provider, address }) {
     setTransferLoading(false);
   };
 
-  // Solo mostrar si el address es el owner actual
+  // --- PANIC HANDLERS ---
+  const handleSetPanicWallet = async (e) => {
+    e.preventDefault();
+    setPanicError("");
+    setPanicSuccess("");
+    setPanicLoading(true);
+    try {
+      console.log("[handleSetPanicWallet] address:", address);
+      console.log("[handleSetPanicWallet] provider:", provider);
+      if (!provider) throw new Error("Provider no definido");
+      const signer = provider.getSigner();
+      const signerAddr = await signer.getAddress();
+      console.log("[handleSetPanicWallet] signer address:", signerAddr);
+      const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, signer);
+      const tx = await dao.setPanicWallet(newPanicWallet);
+      await tx.wait();
+      setPanicSuccess("Panic wallet actualizada correctamente");
+      setNewPanicWallet("");
+    } catch (e) {
+      setPanicError(e.reason || e.message);
+      console.error("[handleSetPanicWallet] error:", e);
+    }
+    setPanicLoading(false);
+  };
+
+  const handlePanico = async () => {
+    setPanicError("");
+    setPanicSuccess("");
+    setPanicLoading(true);
+    try {
+      console.log("[handlePanico] address:", address);
+      console.log("[handlePanico] provider:", provider);
+      if (!provider) throw new Error("Provider no definido");
+      const signer = provider.getSigner();
+      const signerAddr = await signer.getAddress();
+      console.log("[handlePanico] signer address:", signerAddr);
+      const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, signer);
+      const tx = await dao.panico();
+      await tx.wait();
+      setPanicSuccess("DAO en estado de pánico");
+    } catch (e) {
+      setPanicError(e.reason || e.message);
+      console.error("[handlePanico] error:", e);
+    }
+    setPanicLoading(false);
+  };
+
+  const handleTranquilidad = async () => {
+    setPanicError("");
+    setPanicSuccess("");
+    setPanicLoading(true);
+    try {
+      const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider.getSigner());
+      const tx = await dao.tranquilidad();
+      await tx.wait();
+      setPanicSuccess("DAO reactivada (tranquilidad)");
+    } catch (e) {
+      setPanicError(e.reason || e.message);
+    }
+    setPanicLoading(false);
+  };
+
+  // Solo mostrar si el address es el owner actual o panicWallet
   const isOwner = address && currentOwner && address.toLowerCase() === currentOwner;
-  if (!isOwner) return null;
+  const isPanicWallet = address && panicWallet && address.toLowerCase() === panicWallet;
+
+  if (!(isOwner || isPanicWallet)) {
+    return (
+      <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 mt-6 text-white text-center">
+        No tienes permisos para ver esta sección.
+      </div>
+    );
+  }
+
+  // Mostrar el rol actual
+  let rol = "";
+  if (isOwner && isPanicWallet) rol = "(Admin y Panic Wallet)";
+  else if (isOwner) rol = "(Admin)";
+  else if (isPanicWallet) rol = "(Panic Wallet)";
 
   return (
     <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 mt-6">
-      <h2 className="text-xl font-bold text-white mb-2">Parámetros de la DAO (Owner)</h2>
-      <form className="flex flex-col gap-3" onSubmit={handleUpdate}>
-        <label className="text-white">Precio del token (en tokens, ej: 0.01 = 0.01 ETH)
-          <input name="tokenPriceWei" type="text" value={params.tokenPriceWei} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
-        </label>
-        <label className="text-white">Lock period (segundos)
-          <input name="lockPeriod" type="text" value={params.lockPeriod} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
-        </label>
-        <label className="text-white">Duración de propuesta (segundos)
-          <input name="proposalDuration" type="text" value={params.proposalDuration} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
-        </label>
-        <label className="text-white">Cantidad de tokens por 1 VP (ej: 1 = 1 token)
-          <input name="voteUnit" type="text" value={params.voteUnit} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
-          <span className="text-xs text-gray-300 block mt-1">Este parámetro solo afecta el poder de voto (VP) y el resultado de la propuesta. No impide votar si tenés el mínimo stake requerido, pero si tu stake dividido este valor da 0, tu voto no sumará VP.</span>
-        </label>
-        <label className="text-white">Mínimo stake para votar (tokens)
-          <input name="minStakeVote" type="text" value={params.minStakeVote} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
-        </label>
-        <label className="text-white">Mínimo stake para proponer (tokens)
-          <input name="minStakePropose" type="text" value={params.minStakePropose} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
-        </label>
-        <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={loading}>Actualizar parámetros</button>
-        {error && <div className="text-red-400 mt-2 text-center">{error}</div>}
-        {success && <div className="text-green-400 mt-2 text-center">{success}</div>}
-      </form>
+      <h2 className="text-xl font-bold text-white mb-2">Parámetros de la DAO <span className='text-sm font-normal'>{rol}</span></h2>
+      <div className="mb-4 text-white">
+        <div><b>Estado de pánico:</b> {isPanicked ? <span className="text-red-400 font-bold">ACTIVADO</span> : <span className="text-green-400 font-bold">Normal</span>}</div>
+        <div><b>Panic wallet:</b> <span className="font-mono">{panicWallet}</span></div>
+      </div>
+      {isPanicked ? (
+        isPanicWallet ? (
+          <button onClick={handleTranquilidad} className="py-2 px-4 rounded-lg bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={panicLoading}>
+            Reactivar DAO (tranquilidad)
+          </button>
+        ) : (
+          <div className="text-center text-red-300 font-bold">La DAO está en pánico. Solo la panic wallet puede reactivarla.</div>
+        )
+      ) : (
+        <>
+          {isOwner && (
+            <>
+              <form className="flex flex-col gap-3" onSubmit={handleSetPanicWallet}>
+                <label className="text-white">Setear nueva panic wallet:
+                  <input type="text" value={newPanicWallet} onChange={e => setNewPanicWallet(e.target.value)} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={panicLoading} />
+                </label>
+                <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={panicLoading || !newPanicWallet}>Actualizar panic wallet</button>
+              </form>
+              <button onClick={handlePanico} className="py-2 mt-4 rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={panicLoading}>
+                Activar pánico
+              </button>
+            </>
+          )}
+        </>
+      )}
+      {(panicError || panicSuccess) && <div className={panicError ? "text-red-400 mt-2 text-center" : "text-green-400 mt-2 text-center"}>{panicError || panicSuccess}</div>}
       <hr className="my-4 border-white/20" />
-      <form className="flex flex-col gap-3" onSubmit={handleTransferOwnership}>
-        <label className="text-white">Transferir ownership a (dirección):
-          <input type="text" value={newOwner} onChange={e => setNewOwner(e.target.value)} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={transferLoading} />
-        </label>
-        <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={transferLoading || !newOwner}>Transferir ownership</button>
-        {transferError && <div className="text-red-400 mt-2 text-center">{transferError}</div>}
-        {transferSuccess && <div className="text-green-400 mt-2 text-center">{transferSuccess}</div>}
-      </form>
+      {/* Bloquear todo si está en pánico, excepto la reactivación */}
+      {!isPanicked && isOwner && (
+        <>
+          <form className="flex flex-col gap-3" onSubmit={handleUpdate}>
+            <label className="text-white">Precio del token (en tokens, ej: 0.01 = 0.01 ETH)
+              <input name="tokenPriceWei" type="text" value={params.tokenPriceWei} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
+            </label>
+            <label className="text-white">Lock period (segundos)
+              <input name="lockPeriod" type="text" value={params.lockPeriod} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
+            </label>
+            <label className="text-white">Duración de propuesta (segundos)
+              <input name="proposalDuration" type="text" value={params.proposalDuration} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
+            </label>
+            <label className="text-white">Cantidad de tokens por 1 VP (ej: 1 = 1 token)
+              <input name="voteUnit" type="text" value={params.voteUnit} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
+              <span className="text-xs text-gray-300 block mt-1">Este parámetro solo afecta el poder de voto (VP) y el resultado de la propuesta. No impide votar si tenés el mínimo stake requerido, pero si tu stake dividido este valor da 0, tu voto no sumará VP.</span>
+            </label>
+            <label className="text-white">Mínimo stake para votar (tokens)
+              <input name="minStakeVote" type="text" value={params.minStakeVote} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
+            </label>
+            <label className="text-white">Mínimo stake para proponer (tokens)
+              <input name="minStakePropose" type="text" value={params.minStakePropose} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />
+            </label>
+            <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={loading}>Actualizar parámetros</button>
+            {error && <div className="text-red-400 mt-2 text-center">{error}</div>}
+            {success && <div className="text-green-400 mt-2 text-center">{success}</div>}
+          </form>
+          <hr className="my-4 border-white/20" />
+          <form className="flex flex-col gap-3" onSubmit={handleTransferOwnership}>
+            <label className="text-white">Transferir ownership a (dirección):
+              <input type="text" value={newOwner} onChange={e => setNewOwner(e.target.value)} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={transferLoading} />
+            </label>
+            <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold shadow hover:scale-105 transition-transform" disabled={transferLoading || !newOwner}>Transferir ownership</button>
+            {transferError && <div className="text-red-400 mt-2 text-center">{transferError}</div>}
+            {transferSuccess && <div className="text-green-400 mt-2 text-center">{transferSuccess}</div>}
+          </form>
+        </>
+      )}
     </div>
   );
 }

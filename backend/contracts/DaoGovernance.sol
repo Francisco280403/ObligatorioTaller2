@@ -50,6 +50,7 @@ contract DaoGovernance {
     event ProposalCreated(uint256 indexed id, address indexed proposer);
     event Voted(uint256 indexed id, address indexed voter, bool support, uint256 weight);
     event Finalized(uint256 indexed id, bool accepted);
+    event DebugSender(address sender, address owner, address panicWallet, string action);
 
     constructor(
         string memory tokenName,
@@ -73,9 +74,17 @@ contract DaoGovernance {
     }
 
     address public owner;
+    address public panicWallet;
+    bool public isPanicked;
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner");
+        _;
+    }
+
+    modifier notPanicked() {
+        require(!isPanicked, "DAO en panico"); // Reemplazado caracter especial
+        require(panicWallet != address(0), "Panic wallet no configurada");
         _;
     }
 
@@ -85,8 +94,26 @@ contract DaoGovernance {
         emit StrategyChanged(strategy);
     }
 
+    function setPanicWallet(address _panicWallet) external onlyOwner {
+        emit DebugSender(msg.sender, owner, _panicWallet, "setPanicWallet");
+        require(_panicWallet != address(0), "Panic wallet invalida");
+        panicWallet = _panicWallet;
+    }
+
+    function panico() external onlyOwner {
+        emit DebugSender(msg.sender, owner, panicWallet, "panico");
+        require(panicWallet != address(0), "Panic wallet no configurada");
+        isPanicked = true;
+    }
+
+    function tranquilidad() external {
+        emit DebugSender(msg.sender, owner, panicWallet, "tranquilidad");
+        require(msg.sender == panicWallet, "Solo la panic wallet puede tranquilizar");
+        isPanicked = false;
+    }
+
     // Venta de tokens
-    function buyTokens() external payable {
+    function buyTokens() external payable notPanicked {
         require(msg.value >= tokenPriceWei, "Insufficient ETH");
         uint256 amount = (msg.value * 1e18) / tokenPriceWei;
         uint256 daoBalance = token.balanceOf(address(this));
@@ -97,19 +124,19 @@ contract DaoGovernance {
         token.transfer(msg.sender, amount);
     }
 
-    function mintTokens(uint256 amount) external onlyOwner {
+    function mintTokens(uint256 amount) external onlyOwner notPanicked {
         token.mint(address(this), amount);
     }
 
     // Staking (opcional, solo para votar)
-    function stakeForVote(uint256 amount) external {
+    function stakeForVote(uint256 amount) external notPanicked {
         require(amount >= minStakeVote, "Minimo para votar");
         require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         stakeVotes[msg.sender] += amount;
         voteStakeUnlock[msg.sender] = block.timestamp + lockPeriod;
     }
 
-    function unstakeVotes() external {
+    function unstakeVotes() external notPanicked {
         require(block.timestamp >= voteStakeUnlock[msg.sender], "Lock period not passed");
         uint256 amount = stakeVotes[msg.sender];
         stakeVotes[msg.sender] = 0;
@@ -117,14 +144,14 @@ contract DaoGovernance {
     }
 
     // Staking para proponer
-    function stakeForProposal(uint256 amount) external {
+    function stakeForProposal(uint256 amount) external notPanicked {
         require(amount >= minStakePropose, "Minimo para proponer");
         require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         stakePropose[msg.sender] += amount;
         proposeStakeUnlock[msg.sender] = block.timestamp + lockPeriod;
     }
 
-    function unstakeProposals() external {
+    function unstakeProposals() external notPanicked {
         require(block.timestamp >= proposeStakeUnlock[msg.sender], "Lock period not passed");
         uint256 amount = stakePropose[msg.sender];
         stakePropose[msg.sender] = 0;
@@ -132,7 +159,7 @@ contract DaoGovernance {
     }
 
     // Gobernanza
-    function createProposal(string memory title, string memory description) external {
+    function createProposal(string memory title, string memory description) external notPanicked {
         require(stakePropose[msg.sender] >= minStakePropose, "Minimo para proponer");
         _proposalCount++;
         Proposal storage p = proposals[_proposalCount];
@@ -145,7 +172,7 @@ contract DaoGovernance {
         emit ProposalCreated(p.id, msg.sender);
     }
 
-    function vote(uint256 proposalId, bool support) external {
+    function vote(uint256 proposalId, bool support) external notPanicked {
         Proposal storage p = proposals[proposalId];
         require(block.timestamp < p.end, "Voting period ended");
         require(!p.hasVoted[msg.sender], "Already voted");
@@ -157,7 +184,7 @@ contract DaoGovernance {
         emit Voted(proposalId, msg.sender, support, weight);
     }
 
-    function finalizeProposal(uint256 proposalId) external {
+    function finalizeProposal(uint256 proposalId) external notPanicked {
         Proposal storage p = proposals[proposalId];
         require(block.timestamp >= p.end, "Voting still active");
         require(!p.executed, "Already finalized");
@@ -168,25 +195,25 @@ contract DaoGovernance {
     }
 
     // Setters de parámetros soloOwner
-    function setTokenPriceWei(uint256 _tokenPriceWei) external onlyOwner {
+    function setTokenPriceWei(uint256 _tokenPriceWei) external onlyOwner notPanicked {
         tokenPriceWei = _tokenPriceWei;
     }
-    function setLockPeriod(uint256 _lockPeriod) external onlyOwner {
+    function setLockPeriod(uint256 _lockPeriod) external onlyOwner notPanicked {
         lockPeriod = _lockPeriod;
     }
-    function setProposalDuration(uint256 _proposalDuration) external onlyOwner {
+    function setProposalDuration(uint256 _proposalDuration) external onlyOwner notPanicked {
         proposalDuration = _proposalDuration;
     }
-    function setVoteUnit(uint256 _voteUnit) external onlyOwner {
+    function setVoteUnit(uint256 _voteUnit) external onlyOwner notPanicked {
         voteUnit = _voteUnit;
     }
-    function setMinStakeVote(uint256 _minStakeVote) external onlyOwner {
+    function setMinStakeVote(uint256 _minStakeVote) external onlyOwner notPanicked {
         minStakeVote = _minStakeVote;
     }
-    function setMinStakePropose(uint256 _minStakePropose) external onlyOwner {
+    function setMinStakePropose(uint256 _minStakePropose) external onlyOwner notPanicked {
         minStakePropose = _minStakePropose;
     }
-    function transferOwnership(address newOwner) external onlyOwner {
+    function transferOwnership(address newOwner) external onlyOwner notPanicked {
         require(newOwner != address(0), "Nuevo owner invalido");
         owner = newOwner;
     }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { API_BASE } from "../constants";
 import { ethers } from "ethers";
 
-function Staking({ address, onStakeChange }) {
+function Staking({ address, onStakeChange, isPanicked }) {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -55,55 +55,70 @@ function Staking({ address, onStakeChange }) {
     setLoading(false);
   };
 
+  if (isPanicked) {
+    return (
+      <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">
+        La DAO está en pánico. No se puede hacer staking.
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white/10 backdrop-blur rounded-xl p-6 shadow-lg border border-white/20">
       <h2 className="text-xl font-bold text-white mb-2">Staking</h2>
       <form className="flex flex-col gap-3" onSubmit={handleStake}>
-        <select
-          className="rounded-lg px-4 py-2 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-          value={stakeType}
-          onChange={(e) => setStakeType(e.target.value)}
-          disabled={loading}
-        >
-          <option value="vote">Staking para Votar</option>
-          <option value="propose">Staking para Proponer</option>
-        </select>
-        <input
-          type="number"
-          min="0.0001"
-          step="any"
-          placeholder="Tokens a stakear"
-          className="rounded-lg px-4 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          disabled={loading}
-        />
+        <label className="text-white">
+          Cantidad de tokens a stakear:
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="rounded-lg px-4 py-2 bg-white/20 text-white w-full"
+            disabled={loading}
+          />
+        </label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={`py-2 px-4 rounded-lg ${
+              stakeType === "vote" ? "bg-blue-500" : "bg-gray-500"
+            } text-white font-semibold`}
+            onClick={() => setStakeType("vote")}
+          >
+            Para votar
+          </button>
+          <button
+            type="button"
+            className={`py-2 px-4 rounded-lg ${
+              stakeType === "propose" ? "bg-pink-500" : "bg-gray-500"
+            } text-white font-semibold`}
+            onClick={() => setStakeType("propose")}
+          >
+            Para proponer
+          </button>
+        </div>
         <button
           type="submit"
-          className="py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow hover:scale-105 transition-transform"
+          className="py-2 rounded-lg bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold shadow hover:scale-105 transition-transform"
           disabled={loading || !amount}
         >
           {loading ? "Stakeando..." : "Stakear"}
         </button>
-        {error && <div className="text-red-400 text-center">{error}</div>}
-        {success && <div className="text-green-400 text-center">{success}</div>}
+        <button
+          type="button"
+          className="py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold shadow hover:scale-105 transition-transform"
+          onClick={() => handleUnstake(stakeType)}
+          disabled={loading}
+        >
+          Quitar stake
+        </button>
+        {error && (
+          <div className="text-red-400 mt-2 text-center">{error}</div>
+        )}
+        {success && (
+          <div className="text-green-400 mt-2 text-center">{success}</div>
+        )}
       </form>
-      <div className="flex gap-2 mt-4">
-        <button
-          className="flex-1 py-2 rounded-lg bg-red-500 text-white font-semibold shadow hover:scale-105 transition-transform disabled:opacity-50"
-          disabled={loading}
-          onClick={() => handleUnstake("vote")}
-        >
-          Quitar stake para votar
-        </button>
-        <button
-          className="flex-1 py-2 rounded-lg bg-red-700 text-white font-semibold shadow hover:scale-105 transition-transform disabled:opacity-50"
-          disabled={loading}
-          onClick={() => handleUnstake("propose")}
-        >
-          Quitar stake para proponer
-        </button>
-      </div>
     </div>
   );
 }

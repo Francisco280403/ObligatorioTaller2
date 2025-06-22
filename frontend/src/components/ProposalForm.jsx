@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "../constants";
 
-function ProposalForm({ address }) {
+function ProposalForm({ address, isPanicked }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,6 +39,14 @@ function ProposalForm({ address }) {
     }
     setLoading(false);
   };
+
+  if (isPanicked) {
+    return (
+      <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">
+        La DAO está en pánico. No se pueden crear propuestas.
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/10 backdrop-blur rounded-xl p-6 shadow-lg border border-white/20">

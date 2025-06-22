@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { API_BASE } from "../constants";
 
-function ProposalsList({ address }) {
+function ProposalsList({ address, isPanicked }) {
   const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,8 +61,7 @@ function ProposalsList({ address }) {
         if (isJson && data.error) {
           setVoteMsg(data.error);
         } else {
-          const text = await res.text();
-          setVoteMsg(text || "Error al votar");
+          setVoteMsg("Error al votar");
         }
         setVoteLoading(false);
         return;
@@ -74,19 +73,20 @@ function ProposalsList({ address }) {
     setVoteLoading(false);
   };
 
+  if (isPanicked) {
+    return <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">La DAO está en pánico. No se pueden ver ni votar propuestas.</div>;
+  }
+
   return (
     <div className="bg-white/10 backdrop-blur rounded-xl p-6 shadow-lg border border-white/20">
       <h2 className="text-xl font-bold text-white mb-2">Propuestas</h2>
       {loading && <div className="text-white">Cargando...</div>}
       {error && <div className="text-red-400">{error}</div>}
-      <ul className="divide-y divide-white/10">
-        {proposals.map(p => (
-          <li
-            key={p.id}
-            className={`py-2 flex justify-between items-center hover:bg-white/5 rounded transition cursor-pointer ${selected && selected.id === p.id ? 'bg-white/10' : ''}`}
-            onClick={() => setSelected(p)}
-          >
-            <span className="text-white">{p.title}</span>
+      <ul className="divide-y divide-white/20">
+        {proposals.map((p) => (
+          <li key={p.id} className="py-2 flex justify-between items-center">
+            <span className="text-white font-semibold">{p.title}</span>
+            <button className="text-blue-400 underline" onClick={() => setSelected(p)}>Ver detalle</button>
           </li>
         ))}
       </ul>

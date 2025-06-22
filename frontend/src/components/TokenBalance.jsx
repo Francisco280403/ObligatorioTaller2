@@ -4,7 +4,7 @@ import tokenAbi from "../artifacts/VotingToken.json";
 import daoAbi from "../artifacts/DaoGovernance.json";
 import { DAO_ADDRESS } from "../constants";
 
-function TokenBalance({ provider, address, refresh }) {
+function TokenBalance({ provider, address, refresh, isPanicked }) {
   const [balance, setBalance] = useState(null);
   const [stakeVote, setStakeVote] = useState(null);
   const [stakePropose, setStakePropose] = useState(null);
@@ -59,25 +59,17 @@ function TokenBalance({ provider, address, refresh }) {
     fetchUnlocks();
   }, [address, provider, stakeVote, stakePropose]);
 
+  if (isPanicked) {
+    return <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">La DAO está en pánico. No se puede consultar el balance ni el stake.</div>;
+  }
+
   return (
-    <div className="bg-white/10 rounded-lg px-4 py-2 text-white text-center border border-white/20">
-      <span className="font-semibold">Tus tokens disponibles: </span>
-      {loading ? "Actualizando..." : balance !== null ? balance : "-"}
-      <br />
-      <span className="font-semibold">Stake para votar: </span>
-      {loading ? "Actualizando..." : stakeVote !== null ? stakeVote : "-"}
-      {unlockVote && unlockVote * 1000 > Date.now() && (
-        <div className="text-yellow-300 text-xs">Tiempo restante para quitar stake: {Math.ceil((unlockVote * 1000 - Date.now()) / 60000)} min</div>
-      )}
-      <br />
-      <span className="font-semibold">Stake para proponer: </span>
-      {loading ? "Actualizando..." : stakePropose !== null ? stakePropose : "-"}
-      {unlockPropose && unlockPropose * 1000 > Date.now() && (
-        <div className="text-yellow-300 text-xs">Tiempo restante para quitar stake: {Math.ceil((unlockPropose * 1000 - Date.now()) / 60000)} min</div>
-      )}
-      {error && (
-        <div className="text-red-400 text-xs mt-2">Error: {error}</div>
-      )}
+    <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20">
+      <h2 className="text-xl font-bold text-white mb-2">Tu Balance y Stake</h2>
+      <div className="text-white">Balance: <b>{balance !== null ? balance : '-'}</b> tokens</div>
+      <div className="text-white">Stake para votar: <b>{stakeVote !== null ? stakeVote : '-'}</b> tokens</div>
+      <div className="text-white">Stake para proponer: <b>{stakePropose !== null ? stakePropose : '-'}</b> tokens</div>
+      {error && <div className="text-red-400 mt-2">{error}</div>}
     </div>
   );
 }

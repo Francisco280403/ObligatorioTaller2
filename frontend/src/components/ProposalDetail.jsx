@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { API_BASE } from "../constants";
 
-function ProposalDetail({ address, proposalId }) {
+function ProposalDetail({ address, proposalId, isPanicked }) {
   const [proposal, setProposal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -50,6 +50,10 @@ function ProposalDetail({ address, proposalId }) {
     }
     setLoading(false);
   };
+
+  if (isPanicked) {
+    return <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">La DAO está en pánico. No se puede ver ni votar esta propuesta.</div>;
+  }
 
   if (!proposalId) return null;
 
