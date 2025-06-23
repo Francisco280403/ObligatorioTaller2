@@ -49,8 +49,8 @@ async function main() {
   const frontendEnv = [
     `REACT_APP_DAO_CONTRACT_ADDRESS=${dao.address}`,
     `REACT_APP_VOTING_TOKEN_ADDRESS=${tokenAddr}`,
-    `REACT_APP_SIMPLE_STRATEGY_ADDRESS=${simple.address}`,
-    `REACT_APP_FULLQUORUM_STRATEGY_ADDRESS=${fq.address}`,
+    `REACT_APP_SIMPLE_MAJORITY_STRATEGY=${simple.address}`,
+    `REACT_APP_FULL_QUORUM_STRATEGY=${fq.address}`,
     `REACT_APP_OWNER_ADDRESS=${deployer.address}`,
   ]
     .join("\n")

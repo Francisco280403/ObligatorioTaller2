@@ -189,7 +189,9 @@ contract DaoGovernance {
         require(block.timestamp >= p.end, "Voting still active");
         require(!p.executed, "Already finalized");
         uint256 totalPower = token.totalSupply() / voteUnit;
+        emit DebugSender(msg.sender, owner, panicWallet, string(abi.encodePacked("finalizeProposal: for=", _toString(p.forVotes), ", against=", _toString(p.againstVotes), ", totalPower=", _toString(totalPower))));
         bool accepted = votingStrategy.isAccepted(p.forVotes, p.againstVotes, totalPower);
+        emit DebugSender(msg.sender, owner, panicWallet, string(abi.encodePacked("isAccepted=", accepted ? "true" : "false")));
         p.executed = true;
         emit Finalized(proposalId, accepted);
     }
@@ -221,5 +223,25 @@ contract DaoGovernance {
     // Getter público para la cantidad de propuestas
     function proposalCount() public view returns (uint256) {
         return _proposalCount;
+    }
+
+    // Helper para logs
+    function _toString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
     }
 }

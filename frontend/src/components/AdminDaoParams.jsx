@@ -26,6 +26,24 @@ function AdminDaoParams({ provider, address }) {
   const [panicError, setPanicError] = useState("");
   const [panicSuccess, setPanicSuccess] = useState("");
   const [newPanicWallet, setNewPanicWallet] = useState("");
+  // --- VOTING STRATEGY STATE ---
+  const [strategy, setStrategy] = useState("");
+  const [strategies, setStrategies] = useState([
+    {
+      name: "Mayoría simple de votantes",
+      address: process.env.REACT_APP_SIMPLE_MAJORITY_STRATEGY,
+      desc: "Gana si hay más votos a favor que en contra."
+    },
+    {
+      name: "Mayoría absoluta (quórum)",
+      address: process.env.REACT_APP_FULL_QUORUM_STRATEGY,
+      desc: "Gana si los votos a favor superan el 50% del total de poder de voto."
+    }
+    // Aquí puedes agregar más estrategias en el futuro
+  ]);
+  const [strategyLoading, setStrategyLoading] = useState(false);
+  const [strategyError, setStrategyError] = useState("");
+  const [strategySuccess, setStrategySuccess] = useState("");
 
   // Consultar el owner real del contrato
   useEffect(() => {
@@ -57,6 +75,21 @@ function AdminDaoParams({ provider, address }) {
     };
     fetchPanic();
   }, [provider, panicSuccess]);
+
+  // Consultar estrategia actual
+  useEffect(() => {
+    if (!provider) return;
+    const fetchStrategy = async () => {
+      try {
+        const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider);
+        const addr = await dao.votingStrategy();
+        setStrategy(addr);
+      } catch (e) {
+        setStrategy("");
+      }
+    };
+    fetchStrategy();
+  }, [provider, strategySuccess]);
 
   // Cargar valores actuales
   useEffect(() => {
@@ -239,6 +272,38 @@ function AdminDaoParams({ provider, address }) {
       {/* Bloquear todo si está en pánico, excepto la reactivación */}
       {!isPanicked && isOwner && (
         <>
+          {/* --- Cambiar estrategia de votación --- */}
+          <div className="mb-6">
+            <label className="text-white font-semibold block mb-1">Estrategía de votación actual:</label>
+            <div className="mb-2 text-white font-mono break-all">{strategy}</div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setStrategyError("");
+              setStrategySuccess("");
+              setStrategyLoading(true);
+              try {
+                const dao = new ethers.Contract(DAO_ADDRESS, DAO_ABI, provider.getSigner());
+                await dao.setVotingStrategy(e.target.strategy.value);
+                setStrategySuccess("Estrategia cambiada correctamente");
+              } catch (e) {
+                setStrategyError(e.reason || e.message);
+              }
+              setStrategyLoading(false);
+            }}>
+              <select name="strategy" className="rounded-lg px-4 py-2 bg-white/20 text-white w-full mb-2" defaultValue={strategy}>
+                {strategies.map(s => (
+                  <option key={s.address} value={s.address}>{s.name} - {s.address}</option>
+                ))}
+              </select>
+              <button type="submit" className="py-2 rounded-lg bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold shadow hover:scale-105 transition-transform w-full" disabled={strategyLoading}>Cambiar estrategia</button>
+              {strategyError && <div className="text-red-400 mt-2 text-center">{strategyError}</div>}
+              {strategySuccess && <div className="text-green-400 mt-2 text-center">{strategySuccess}</div>}
+            </form>
+            <ul className="mt-2 text-xs text-gray-300 list-disc pl-4">
+              {strategies.map(s => <li key={s.address}><b>{s.name}:</b> {s.desc}</li>)}
+            </ul>
+          </div>
+          {/* --- Fin estrategia --- */}
           <form className="flex flex-col gap-3" onSubmit={handleUpdate}>
             <label className="text-white">Precio del token (en tokens, ej: 0.01 = 0.01 ETH)
               <input name="tokenPriceWei" type="text" value={params.tokenPriceWei} onChange={handleChange} className="rounded-lg px-4 py-2 bg-white/20 text-white w-full" disabled={loading} />

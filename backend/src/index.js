@@ -134,7 +134,6 @@ app.post("/proposals/:id/finalize", async (req, res) => {
 
 app.get("/proposals", async (req, res) => {
   try {
-    // Cambiado _proposalCount por proposalCount
     const count = (await dao.proposalCount()).toNumber();
     const block = await provider.getBlock("latest");
     const finals = await dao.queryFilter(dao.filters.Finalized());
@@ -146,8 +145,18 @@ app.get("/proposals", async (req, res) => {
       const state = !p.executed && block.timestamp < p.end.toNumber()
         ? "ACTIVA"
         : (accepted[i] ? "ACEPTADA" : "RECHAZADA");
-      if (req.query.state && req.query.state.toUpperCase() !== state) continue;
-      out.push({ id: i, title: p.title, state });
+      out.push({
+        id: i,
+        title: p.title,
+        description: p.description,
+        start: p.start.toString(),
+        end: p.end.toString(),
+        forVotes: p.forVotes.toString(),
+        againstVotes: p.againstVotes.toString(),
+        executed: p.executed,
+        state,
+        accepted: accepted[i] ?? null
+      });
     }
     res.json(out);
   } catch (e) {
