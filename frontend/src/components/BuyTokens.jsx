@@ -33,6 +33,7 @@ function BuyTokens({ provider, onBuy, isPanicked }) {
     }
   };
 
+  // Esto permite comprar tokens de la DAO
   const handleBuy = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,6 +71,7 @@ function BuyTokens({ provider, onBuy, isPanicked }) {
     setLoading(false);
   };
 
+  //Si esta en estado de panico, no permite comprar tokens
   if (isPanicked) {
     return (
       <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">

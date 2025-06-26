@@ -7,6 +7,7 @@ function ProposalDetail({ address, proposalId, isPanicked }) {
   const [error, setError] = useState("");
   const [voteMsg, setVoteMsg] = useState("");
 
+  // Si no hay proposalId, no hacemos nada
   useEffect(() => {
     if (!proposalId) return;
     setLoading(true);
@@ -18,6 +19,7 @@ function ProposalDetail({ address, proposalId, isPanicked }) {
       .finally(() => setLoading(false));
   }, [proposalId]);
 
+  // Esta función maneja el voto del usuario
   const handleVote = async (support) => {
     setVoteMsg("");
     setError("");
@@ -51,6 +53,7 @@ function ProposalDetail({ address, proposalId, isPanicked }) {
     setLoading(false);
   };
 
+  //Si esta en panico, no se puede ver ni votar la propuesta
   if (isPanicked) {
     return <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">La DAO está en pánico. No se puede ver ni votar esta propuesta.</div>;
   }

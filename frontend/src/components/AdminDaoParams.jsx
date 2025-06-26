@@ -19,14 +19,14 @@ function AdminDaoParams({ provider, address }) {
   const [transferError, setTransferError] = useState("");
   const [transferSuccess, setTransferSuccess] = useState("");
   const [currentOwner, setCurrentOwner] = useState("");
-  // --- PANIC STATE ---
+  // --- Funciones de Panico ---
   const [panicWallet, setPanicWallet] = useState("");
   const [isPanicked, setIsPanicked] = useState(false);
   const [panicLoading, setPanicLoading] = useState(false);
   const [panicError, setPanicError] = useState("");
   const [panicSuccess, setPanicSuccess] = useState("");
   const [newPanicWallet, setNewPanicWallet] = useState("");
-  // --- VOTING STRATEGY STATE ---
+  // --- Funciones de estrategia de Votos ---
   const [strategy, setStrategy] = useState("");
   const [strategies, setStrategies] = useState([
     {
@@ -155,7 +155,7 @@ function AdminDaoParams({ provider, address }) {
     setTransferLoading(false);
   };
 
-  // --- PANIC HANDLERS ---
+  // ---Controladores de Panico ---
   const handleSetPanicWallet = async (e) => {
     e.preventDefault();
     setPanicError("");
@@ -180,6 +180,7 @@ function AdminDaoParams({ provider, address }) {
     setPanicLoading(false);
   };
 
+   //Función para activar el estado de pánico en la DAO
   const handlePanico = async () => {
     setPanicError("");
     setPanicSuccess("");
@@ -202,6 +203,8 @@ function AdminDaoParams({ provider, address }) {
     setPanicLoading(false);
   };
 
+  
+   // Función encargada de desactivar el estado de pánico en la DAO   
   const handleTranquilidad = async () => {
     setPanicError("");
     setPanicSuccess("");

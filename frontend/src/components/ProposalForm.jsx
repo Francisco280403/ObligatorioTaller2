@@ -8,6 +8,7 @@ function ProposalForm({ address, isPanicked }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Esta funcion maneja la creación de nuevas propuestas
   const handleCreate = async (e) => {
     e.preventDefault();
     setError("");
@@ -40,6 +41,7 @@ function ProposalForm({ address, isPanicked }) {
     setLoading(false);
   };
 
+  // Si esta en pánico, no se pueden crear propuestas
   if (isPanicked) {
     return (
       <div className="bg-white/10 rounded-xl p-6 shadow-lg border border-white/20 text-center text-red-400 font-bold">

@@ -8,6 +8,7 @@ function DaoTokenSupply({ provider, refresh, isPanicked }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Esto se encarga de consultar y actualizar el supply de tokens de la DAO
   useEffect(() => {
     if (!provider) return;
     const fetchSupply = async () => {
@@ -28,6 +29,7 @@ function DaoTokenSupply({ provider, refresh, isPanicked }) {
     fetchSupply();
   }, [provider, refresh]);
 
+  // Si esta en panico, no se puede consultar el supply
   if (isPanicked) {
     return (
       <div className="bg-white/10 rounded-lg px-4 py-2 text-white text-center border border-white/20 mb-4 text-red-400 font-bold">

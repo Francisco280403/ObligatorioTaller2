@@ -8,6 +8,7 @@ function AdminPanel({ address }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Este es el componente que permite a los usuarios crear nuevas propuestas 
   const handleCreate = async (e) => {
     e.preventDefault();
     setError("");

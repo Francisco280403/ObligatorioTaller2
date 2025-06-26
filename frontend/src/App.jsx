@@ -12,16 +12,18 @@ import AdminMint       from "./components/AdminMint";
 import AdminDaoParams  from "./components/AdminDaoParams";
 import { DAO_ADDRESS, DAO_ABI } from "./constants";
 
+// Define el componente principal de la aplicación segun la situacion 
 function App() {
   const [address, setAddress] = useState(null);
   const [provider, setProvider] = useState(null);
   const [refreshBalances, setRefreshBalances] = useState(0);
   const [refreshDaoSupply, setRefreshDaoSupply] = useState(0);
   const [currentOwner, setCurrentOwner] = useState("");
-  // --- PANIC STATE ---
+  // ---Estas son las funciones de Panico ---
   const [isPanicked, setIsPanicked] = useState(false);
   const [panicWallet, setPanicWallet] = useState("");
 
+  // Funciones para refrescar componentes cuando cambian los datos
   const handleStakeChange = () => setRefreshBalances(r => r + 1);
   const handleMint = () => setRefreshDaoSupply(r => r + 1);
   const handleBuy = () => {
@@ -55,6 +57,7 @@ function App() {
     window.ethers = ethers;
   }, [provider, address]);
 
+    // Si no hay wallet conectada o proveedor entonces muesta la pantalla de conexión
   if (!address || !provider) return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900">
       <div className="bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-8 max-w-md w-full border border-white/20">

@@ -1,8 +1,8 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\contracts\\DaoGovernance.sol": {
-      "lastModificationDate": 1750879941075,
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\contracts\\DaoGovernance.sol": {
+      "lastModificationDate": 1750875347159,
       "contentHash": "10ea8ae9b067aa35e84690a9918e3a78",
       "sourceName": "contracts/DaoGovernance.sol",
       "solcConfig": {
@@ -40,8 +40,8 @@
         "IVotingStrategy"
       ]
     },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\contracts\\VotingToken.sol": {
-      "lastModificationDate": 1750879941076,
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\contracts\\VotingToken.sol": {
+      "lastModificationDate": 1750875347161,
       "contentHash": "0a3d7d51a63373a9c56b214955f0b390",
       "sourceName": "contracts/VotingToken.sol",
       "solcConfig": {
@@ -78,8 +78,8 @@
         "VotingToken"
       ]
     },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
-      "lastModificationDate": 1750344281811,
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
+      "lastModificationDate": 1750899387811,
       "contentHash": "57d79df281f57bbb1b09214c7914f877",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
@@ -119,118 +119,8 @@
         "ERC20"
       ]
     },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\interfaces\\draft-IERC6093.sol": {
-      "lastModificationDate": 1750344281761,
-      "contentHash": "267d92fe4de67b1bdb3302c08f387dbf",
-      "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "IERC1155Errors",
-        "IERC20Errors",
-        "IERC721Errors"
-      ]
-    },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
-      "lastModificationDate": 1750344281720,
-      "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
-      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "Context"
-      ]
-    },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol": {
-      "lastModificationDate": 1750344281907,
-      "contentHash": "8f19f64d2adadf448840908bbaf431c8",
-      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.20"
-      ],
-      "artifacts": [
-        "IERC20"
-      ]
-    },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
-      "lastModificationDate": 1750344281909,
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\extensions\\IERC20Metadata.sol": {
+      "lastModificationDate": 1750899387966,
       "contentHash": "794db3115001aa372c79326fcfd44b1f",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
@@ -267,8 +157,118 @@
         "IERC20Metadata"
       ]
     },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\contracts\\FullQuorumMajorityStrategy.sol": {
-      "lastModificationDate": 1750344185545,
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1750899387681,
+      "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\interfaces\\draft-IERC6093.sol": {
+      "lastModificationDate": 1750899387738,
+      "contentHash": "267d92fe4de67b1bdb3302c08f387dbf",
+      "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC1155Errors",
+        "IERC20Errors",
+        "IERC721Errors"
+      ]
+    },
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\IERC20.sol": {
+      "lastModificationDate": 1750899387964,
+      "contentHash": "8f19f64d2adadf448840908bbaf431c8",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\contracts\\FullQuorumMajorityStrategy.sol": {
+      "lastModificationDate": 1750875347159,
       "contentHash": "ed1eb9bde6c7c5e69019105976e3bef7",
       "sourceName": "contracts/FullQuorumMajorityStrategy.sol",
       "solcConfig": {
@@ -304,45 +304,8 @@
         "IVotingStrategy"
       ]
     },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\contracts\\SimpleMajorityStrategy.sol": {
-      "lastModificationDate": 1750344185546,
-      "contentHash": "739eccd8f19296774c313660a0b6fa10",
-      "sourceName": "contracts/SimpleMajorityStrategy.sol",
-      "solcConfig": {
-        "version": "0.8.20",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.17"
-      ],
-      "artifacts": [
-        "IVotingStrategy",
-        "SimpleMajorityStrategy"
-      ]
-    },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\contracts\\IVotingStrategy.sol": {
-      "lastModificationDate": 1750882543009,
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\contracts\\IVotingStrategy.sol": {
+      "lastModificationDate": 1750898329135,
       "contentHash": "0af4600b332a3ecb88b4240b1492f8eb",
       "sourceName": "contracts/IVotingStrategy.sol",
       "solcConfig": {
@@ -377,8 +340,8 @@
         "IVotingStrategy"
       ]
     },
-    "C:\\Users\\juanp\\source\\repos\\ObligatorioTaller2\\backend\\contracts\\test\\DummyStrategy.sol": {
-      "lastModificationDate": 1750882533923,
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\contracts\\test\\DummyStrategy.sol": {
+      "lastModificationDate": 1750898329135,
       "contentHash": "7e1c2b93257e0aae0434d99a889feb9b",
       "sourceName": "contracts/test/DummyStrategy.sol",
       "solcConfig": {
@@ -413,6 +376,43 @@
       ],
       "artifacts": [
         "DummyStrategy"
+      ]
+    },
+    "C:\\Users\\Francisco\\Downloads\\ObligatorioTaller2\\backend\\contracts\\SimpleMajorityStrategy.sol": {
+      "lastModificationDate": 1750875347159,
+      "contentHash": "739eccd8f19296774c313660a0b6fa10",
+      "sourceName": "contracts/SimpleMajorityStrategy.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "IVotingStrategy",
+        "SimpleMajorityStrategy"
       ]
     }
   }
