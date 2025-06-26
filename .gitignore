@@ -1,1 +1,13 @@
-node_modules
+# Node deps
+node_modules/
+
+# Hardhat build artifacts & cache
+cache/
+artifacts/
+
+# Coverage reports
+coverage/
+
+# Debug & error dumps que genera solidity-coverage / Hardhat
+**/*.dbg.json
+**/*Errors.json

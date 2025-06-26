@@ -1,4 +1,6 @@
 require("dotenv").config();
+require("solidity-coverage");
+require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 
 module.exports = {
@@ -8,9 +10,14 @@ module.exports = {
     ]
   },
   networks: {
+    hardhat: {},
     localhost: {
       url: "http://127.0.0.1:8545"
     }
-  }
+  },
+   paths: {
+    sources: "./contracts",
+    tests:   "./test"
+  },
+  mocha: { timeout: 20000 }
 };
-
