@@ -2,21 +2,27 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
+  console.log("=== INICIO DEPLOY ===");
   const [deployer] = await ethers.getSigners();
   console.log("Deploying with", deployer.address);
 
   // Deploy voting strategies
+  console.log("Deploying SimpleMajorityStrategy...");
   const Simple = await ethers.getContractFactory("SimpleMajorityStrategy");
   const simple = await Simple.deploy();
   await simple.deployed();
+  console.log("SimpleMajorityStrategy deployed at:", simple.address);
 
+  console.log("Deploying FullQuorumMajorityStrategy...");
   const FullQuorum = await ethers.getContractFactory(
     "FullQuorumMajorityStrategy"
   );
   const fq = await FullQuorum.deploy();
   await fq.deployed();
+  console.log("FullQuorumMajorityStrategy deployed at:", fq.address);
 
   // Deploy DAO
+  console.log("Deploying DaoGovernance...");
   const Dao = await ethers.getContractFactory("DaoGovernance");
   const dao = await Dao.deploy(
     "VoteToken",
@@ -29,6 +35,7 @@ async function main() {
     deployer.address // owner
   );
   await dao.deployed();
+  console.log("DaoGovernance deployed at:", dao.address);
 
   // Setear la panicWallet (por defecto igual al owner, pero puede cambiarse luego)
   const txPanic = await dao.setPanicWallet(deployer.address);
@@ -111,6 +118,7 @@ async function main() {
   console.log(
     "\nArchivos .env de frontend y backend actualizados automáticamente.\n"
   );
+  console.log("=== FIN DEPLOY ===");
 }
 
 main().catch((e) => {
